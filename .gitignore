@@ -1,0 +1,40 @@
+# Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# Visual Studio
+/.vs/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# VS Code
+/.vscode/
+
+# Mac
+.DS_Store
+
+# Test results
+test-results*.xml
+TestResults/
+
+# Logs
+*.log
+
+# Package Manager
+/packages/
+PackageCache/
+
+# Unity specific
+AssemblyCSharp-firstpass.dll
+AssemblyCSharp.dll
+AssemblyCSharp-Editor-firstpass.dll
+AssemblyCSharp-Editor.dll
