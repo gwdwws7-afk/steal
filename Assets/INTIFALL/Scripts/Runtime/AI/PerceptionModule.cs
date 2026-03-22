@@ -9,6 +9,10 @@ namespace INTIFALL.AI
         [SerializeField] private float visionAngle = 60f;
         [SerializeField] private float crouchVisionMultiplier = 0.5f;
 
+        [Header("Shadow Detection")]
+        [SerializeField] private float shadowLuxThreshold = 30f;
+        [SerializeField] private float shadowDetectionPenalty = 0.5f;
+
         [Header("Hearing")]
         [SerializeField] private float walkSoundRadius = 5f;
         [SerializeField] private float runSoundRadius = 12f;
@@ -32,11 +36,50 @@ namespace INTIFALL.AI
             {
                 if (HasLineOfSight(_currentTarget.position))
                 {
+                    if (IsInShadow(_currentTarget.position))
+                    {
+                        return Random.value > shadowDetectionPenalty;
+                    }
                     _lastSeenPosition = _currentTarget.position;
                     return true;
                 }
             }
             return false;
+        }
+
+        public bool IsInShadow(Vector3 targetPos)
+        {
+            float lux = GetAmbientLux(targetPos);
+            return lux < shadowLuxThreshold;
+        }
+
+        private float GetAmbientLux(Vector3 position)
+        {
+            Light[] lights = FindObjectsOfType<Light>();
+            float totalLux = 0f;
+
+            foreach (var light in lights)
+            {
+                if (light.type == LightType.Directional)
+                {
+                    float angle = Vector3.Angle(light.transform.forward, position - light.transform.position);
+                    if (angle < light.spotAngle * 0.5f)
+                    {
+                        float dist = Vector3.Distance(position, light.transform.position);
+                        totalLux += light.intensity * 10000f / (dist * dist);
+                    }
+                }
+                else if (light.type == LightType.Point)
+                {
+                    float dist = Vector3.Distance(position, light.transform.position);
+                    if (dist < light.range)
+                    {
+                        totalLux += light.intensity * 100f / (dist * dist);
+                    }
+                }
+            }
+
+            return Mathf.Max(totalLux, 0.5f);
         }
 
         public bool CanHearTarget(Vector3 targetPosition, bool isSprinting, bool isCrouching)

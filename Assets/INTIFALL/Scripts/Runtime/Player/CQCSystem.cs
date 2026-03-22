@@ -31,6 +31,8 @@ namespace INTIFALL.Player
         [SerializeField] private float backstabRange = 2f;
         [SerializeField] private float backstabCastTime = 1.0f;
         [SerializeField] private float backstabStunDuration = 30f;
+        [SerializeField] private float backstabAngleThreshold = 135f;
+        [SerializeField] private bool interruptOnMove = true;
 
         [Header("Rope Kill Settings")]
         [SerializeField] private float ropeKillRange = 2f;
@@ -293,7 +295,15 @@ namespace INTIFALL.Player
         {
             Vector3 toTarget = target.position - transform.position;
             float angle = Vector3.Angle(transform.forward, toTarget);
-            return angle > 135f;
+            return angle > backstabAngleThreshold;
+        }
+
+        public void OnPlayerMove()
+        {
+            if (_isExecutingAction && _currentAction == ECQCAction.Backstab && interruptOnMove)
+            {
+                CancelAction();
+            }
         }
     }
 }
