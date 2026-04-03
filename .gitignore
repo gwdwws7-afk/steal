@@ -38,3 +38,7 @@ AssemblyCSharp-firstpass.dll
 AssemblyCSharp.dll
 AssemblyCSharp-Editor-firstpass.dll
 AssemblyCSharp-Editor.dll
+
+# Codex local artifacts
+codex-*.xml
+codex-*.txt
