@@ -101,5 +101,74 @@ namespace INTIFALL.Tests
         {
             Assert.IsFalse(_sm.IsAlerted());
         }
+
+        [Test]
+        public void OnPlayerLost_FromAlert_KeepsAlertUntilDropDelay()
+        {
+            _sm.TransitionTo(EEnemyState.Alert);
+            _sm.OnPlayerLost();
+            Assert.AreEqual(EEnemyState.Alert, _sm.CurrentState);
+        }
+
+        [Test]
+        public void OnPlayerLost_FromFullAlert_RemainsFullAlert()
+        {
+            _sm.TransitionTo(EEnemyState.FullAlert);
+            _sm.OnPlayerLost();
+            Assert.AreEqual(EEnemyState.FullAlert, _sm.CurrentState);
+        }
+
+        [Test]
+        public void OnPlayerDetected_FromSearching_TransitionsToAlert()
+        {
+            _sm.TransitionTo(EEnemyState.Searching);
+            _sm.OnPlayerDetected(Vector3.one);
+            Assert.AreEqual(EEnemyState.Alert, _sm.CurrentState);
+        }
+
+        [Test]
+        public void OnSquadAlert_LowPriority_FromUnaware_TransitionsToSuspicious()
+        {
+            _sm.TransitionTo(EEnemyState.Unaware);
+            _sm.OnSquadAlert(new Vector3(3f, 0f, 2f), 1, false);
+
+            Assert.AreEqual(EEnemyState.Suspicious, _sm.CurrentState);
+        }
+
+        [Test]
+        public void OnSquadAlert_HighPriority_FromSearching_TransitionsToAlert()
+        {
+            _sm.TransitionTo(EEnemyState.Searching);
+            _sm.OnSquadAlert(new Vector3(5f, 0f, 5f), 3, true);
+
+            Assert.AreEqual(EEnemyState.Alert, _sm.CurrentState);
+        }
+
+        [Test]
+        public void OnSquadAlert_UpdatesSearchAnchorAndWave()
+        {
+            Vector3 alertPos = new Vector3(7f, 0f, -4f);
+            _sm.OnSquadAlert(alertPos, 12, false);
+
+            Assert.AreEqual(alertPos, _sm.SearchAnchor);
+            Assert.AreEqual(12, _sm.SearchWaveId);
+        }
+
+        [Test]
+        public void ConfigureTimingProfile_AppliesAndNormalizesDurations()
+        {
+            _sm.ConfigureTimingProfile(
+                searchDurationSeconds: 9.5f,
+                alertDurationSeconds: 5.8f,
+                fullAlertMissionFailDelaySeconds: 34f,
+                alertDropToSearchDelaySeconds: 1.4f,
+                suspiciousDurationSeconds: 2.6f);
+
+            Assert.AreEqual(9.5f, _sm.SearchDuration, 0.001f);
+            Assert.AreEqual(5.8f, _sm.AlertDuration, 0.001f);
+            Assert.AreEqual(34f, _sm.FullAlertMissionFailDelay, 0.001f);
+            Assert.AreEqual(1.4f, _sm.AlertDropToSearchDelay, 0.001f);
+            Assert.AreEqual(2.6f, _sm.SuspiciousDuration, 0.001f);
+        }
     }
 }

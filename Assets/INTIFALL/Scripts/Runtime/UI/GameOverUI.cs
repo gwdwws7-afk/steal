@@ -1,7 +1,7 @@
+﻿using INTIFALL.Level;
+using INTIFALL.System;
 using UnityEngine;
 using UnityEngine.UI;
-using INTIFALL.System;
-using INTIFALL.Level;
 
 namespace INTIFALL.UI
 {
@@ -64,10 +64,20 @@ namespace INTIFALL.UI
                 levelCompletePanel.SetActive(false);
 
             if (titleText != null)
-                titleText.text = "任务失败";
+            {
+                titleText.text = LocalizationService.Get(
+                    "gameover.title.failed",
+                    fallbackEnglish: "Mission Failed",
+                    fallbackChinese: string.Empty);
+            }
 
             if (messageText != null)
-                messageText.text = "你被发现了...";
+            {
+                messageText.text = LocalizationService.Get(
+                    "gameover.message.compromised",
+                    fallbackEnglish: "You were compromised.",
+                    fallbackChinese: string.Empty);
+            }
 
             UpdateStats();
         }
@@ -90,40 +100,97 @@ namespace INTIFALL.UI
             };
 
             if (rankText != null)
-                rankText.text = $"Rank: {rankName}";
+            {
+                string template = LocalizationService.Get(
+                    "gameover.rank.line",
+                    fallbackEnglish: "Rank: {0}",
+                    fallbackChinese: string.Empty);
+                rankText.text = string.Format(template, rankName);
+            }
 
             if (creditsEarnedText != null)
-                creditsEarnedText.text = $"+{credits} Credit";
+            {
+                string template = LocalizationService.Get(
+                    "gameover.credits.line",
+                    fallbackEnglish: "+{0} Credits",
+                    fallbackChinese: string.Empty);
+                creditsEarnedText.text = string.Format(template, credits);
+            }
 
             if (bonusText != null)
-            {
-                string bonusStr = "";
-                if (bonuses != null)
-                {
-                    if (bonuses.Length > 0 && bonuses[0]) bonusStr += "零击杀 ";
-                    if (bonuses.Length > 1 && bonuses[1]) bonusStr += "无伤 ";
-                    if (bonuses.Length > 2 && bonuses[2]) bonusStr += "全情报 ";
-                }
-                bonusText.text = bonusStr;
-            }
+                bonusText.text = BuildBonusText(bonuses);
 
             UpdateStats();
         }
 
+        private static string BuildBonusText(bool[] bonuses)
+        {
+            if (bonuses == null)
+                return string.Empty;
+
+            string[] tokens = new string[3];
+            int count = 0;
+
+            if (bonuses.Length > 0 && bonuses[0])
+            {
+                tokens[count++] = LocalizationService.Get(
+                    "gameover.bonus.zero_kill",
+                    fallbackEnglish: "Zero-Kill",
+                    fallbackChinese: string.Empty);
+            }
+
+            if (bonuses.Length > 1 && bonuses[1])
+            {
+                tokens[count++] = LocalizationService.Get(
+                    "gameover.bonus.no_damage",
+                    fallbackEnglish: "No-Damage",
+                    fallbackChinese: string.Empty);
+            }
+
+            if (bonuses.Length > 2 && bonuses[2])
+            {
+                tokens[count++] = LocalizationService.Get(
+                    "gameover.bonus.full_intel",
+                    fallbackEnglish: "Full-Intel",
+                    fallbackChinese: string.Empty);
+            }
+
+            if (count == 0)
+                return string.Empty;
+
+            return string.Join(" ", tokens, 0, count);
+        }
+
         private void UpdateStats()
         {
-            var gm = GameManager.Instance;
+            GameManager gm = GameManager.Instance;
 
             if (playTimeText != null && gm != null)
-                playTimeText.text = $"时间: {gm.PlayTime:F1}s";
+            {
+                string template = LocalizationService.Get(
+                    "gameover.stats.time",
+                    fallbackEnglish: "Time: {0}s",
+                    fallbackChinese: string.Empty);
+                playTimeText.text = string.Format(template, gm.PlayTime.ToString("F1"));
+            }
 
             if (killsText != null && gm != null)
-                killsText.text = $"击杀: {gm.EnemiesKilled}";
+            {
+                string template = LocalizationService.Get(
+                    "gameover.stats.kills",
+                    fallbackEnglish: "Kills: {0}",
+                    fallbackChinese: string.Empty);
+                killsText.text = string.Format(template, gm.EnemiesKilled);
+            }
 
             if (intelText != null)
             {
                 var narrative = FindObjectOfType<Narrative.NarrativeManager>();
-                intelText.text = $"情报: {narrative?.IntelCollected ?? 0}";
+                string template = LocalizationService.Get(
+                    "gameover.stats.intel",
+                    fallbackEnglish: "Intel: {0}",
+                    fallbackChinese: string.Empty);
+                intelText.text = string.Format(template, narrative?.IntelCollected ?? 0);
             }
         }
 
@@ -131,7 +198,7 @@ namespace INTIFALL.UI
         {
             Time.timeScale = 1f;
 
-            var levelFlow = FindObjectOfType<LevelFlowManager>();
+            LevelFlowManager levelFlow = FindObjectOfType<LevelFlowManager>();
             if (levelFlow != null)
                 levelFlow.RestartCurrentLevel();
         }
@@ -140,7 +207,7 @@ namespace INTIFALL.UI
         {
             Time.timeScale = 1f;
 
-            var levelFlow = FindObjectOfType<LevelFlowManager>();
+            LevelFlowManager levelFlow = FindObjectOfType<LevelFlowManager>();
             if (levelFlow != null)
                 levelFlow.LoadMainMenu();
         }
@@ -149,7 +216,7 @@ namespace INTIFALL.UI
         {
             Time.timeScale = 1f;
 
-            var levelFlow = FindObjectOfType<LevelFlowManager>();
+            LevelFlowManager levelFlow = FindObjectOfType<LevelFlowManager>();
             if (levelFlow != null)
                 levelFlow.LoadNextLevel();
         }

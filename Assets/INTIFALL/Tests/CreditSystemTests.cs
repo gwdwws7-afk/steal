@@ -110,45 +110,59 @@ namespace INTIFALL.Tests
         }
 
         [Test]
-        public void AddMissionReward_SRank_Adds500()
+        public void AddMissionReward_SRank_Adds760()
         {
             _credit.AddMissionReward(5, 0, 0, false, false, 0f);
-            Assert.AreEqual(500, _credit.CurrentCredits);
+            Assert.AreEqual(760, _credit.CurrentCredits);
         }
 
         [Test]
-        public void AddMissionReward_ARank_Adds350()
+        public void AddMissionReward_ARank_Adds520()
         {
             _credit.AddMissionReward(4, 0, 0, false, false, 0f);
-            Assert.AreEqual(350, _credit.CurrentCredits);
+            Assert.AreEqual(520, _credit.CurrentCredits);
         }
 
         [Test]
-        public void AddMissionReward_BRank_Adds200()
+        public void AddMissionReward_BRank_Adds320()
         {
             _credit.AddMissionReward(3, 0, 0, false, false, 0f);
-            Assert.AreEqual(200, _credit.CurrentCredits);
+            Assert.AreEqual(320, _credit.CurrentCredits);
         }
 
         [Test]
-        public void AddMissionReward_ZeroKill_Adds150()
+        public void AddMissionReward_ZeroKill_Adds140()
         {
             _credit.AddMissionReward(5, 0, 0, true, false, 0f);
-            Assert.AreEqual(650, _credit.CurrentCredits);
+            Assert.AreEqual(900, _credit.CurrentCredits);
         }
 
         [Test]
-        public void AddMissionReward_NoDamage_Adds200()
+        public void AddMissionReward_NoDamage_Adds160()
         {
             _credit.AddMissionReward(5, 0, 0, false, true, 0f);
-            Assert.AreEqual(700, _credit.CurrentCredits);
+            Assert.AreEqual(920, _credit.CurrentCredits);
         }
 
         [Test]
         public void AddMissionReward_IntelCount_Adds50Each()
         {
             _credit.AddMissionReward(5, 0, 3, false, false, 0f);
-            Assert.AreEqual(650, _credit.CurrentCredits);
+            Assert.AreEqual(910, _credit.CurrentCredits);
+        }
+
+        [Test]
+        public void AddMissionReward_OptionalRouteMultiplier_IncreasesReward()
+        {
+            _credit.AddMissionReward(3, 1, 2, false, false, 0f, 1.2f, 2, true);
+            Assert.Greater(_credit.CurrentCredits, 320);
+        }
+
+        [Test]
+        public void AddMissionReward_HighPressure_ReducesOptionalRouteReward()
+        {
+            _credit.AddMissionReward(3, 1, 2, false, false, 0f, 1.2f, 2, true, alertsTriggered: 4, toolsUsed: 7);
+            Assert.Less(_credit.CurrentCredits, 500);
         }
     }
 }

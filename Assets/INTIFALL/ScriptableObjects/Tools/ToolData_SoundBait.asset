@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10daed8730b51c64d9f2f72d37d89300, type: 3}
+  m_Name: ToolData_SoundBait
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Tools.ToolData
+  toolName: SoundBait
+  toolNameCN: Sound Bait
+  category: 1
+  defaultSlot: 2
+  slotCost: 1
+  damage: 0
+  range: 9
+  cooldown: 7
+  duration: 2.5
+  maxAmmo: 4
+  energyCost: 6
+  upgradePrice: 150
+  upgradedVersion: {fileID: 0}
+  unlockedByDefault: 1
+  unlockPrice: 110
+  unlockLevel: 1
+  icon: {fileID: 0}
+  description: Pulls patrol attention toward a decoy sound.
+  runtimePrefab: {fileID: 7327689730025784491, guid: c1341778c844c2e4ca96577280eb0b32, type: 3}
+
+

@@ -12,7 +12,7 @@ namespace INTIFALL.Data
         Saqueos
     }
 
-    [System.Serializable]
+    [global::System.Serializable]
     public class EnemySpawnPoint
     {
         public string spawnId;
@@ -57,7 +57,7 @@ namespace INTIFALL.Data
         {
             if (spawnPoints == null) return new EnemySpawnPoint[0];
 
-            System.Collections.Generic.List<EnemySpawnPoint> result = new();
+            global::System.Collections.Generic.List<EnemySpawnPoint> result = new();
             foreach (var point in spawnPoints)
             {
                 if (point.enemyType == type)

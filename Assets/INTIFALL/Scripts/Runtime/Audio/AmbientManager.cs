@@ -141,7 +141,7 @@ namespace INTIFALL.Audio
             _currentAmbient = clip;
         }
 
-        private System.Collections.IEnumerator CrossfadeSources()
+        private global::System.Collections.IEnumerator CrossfadeSources()
         {
             float elapsed = 0f;
             float duration = crossfadeDuration;

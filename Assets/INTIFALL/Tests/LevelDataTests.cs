@@ -56,5 +56,15 @@ namespace INTIFALL.Tests
             Assert.AreEqual(150, _levelData.zeroKillBonus);
             Assert.AreEqual(200, _levelData.noDamageBonus);
         }
+
+        [Test]
+        public void DefaultPhaseTiming_IsConsistent()
+        {
+            float total = _levelData.infiltrationMinutes + _levelData.objectiveMinutes + _levelData.extractionMinutes;
+            Assert.AreEqual(_levelData.designedCompletionMinutes, total, 0.01f);
+            Assert.Greater(_levelData.infiltrationMinutes, 0f);
+            Assert.Greater(_levelData.objectiveMinutes, 0f);
+            Assert.Greater(_levelData.extractionMinutes, 0f);
+        }
     }
 }

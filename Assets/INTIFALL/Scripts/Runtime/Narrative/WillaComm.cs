@@ -1,6 +1,9 @@
-using UnityEngine;
-using UnityEngine.UI;
+using System.Collections.Generic;
+using INTIFALL.Level;
 using INTIFALL.System;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace INTIFALL.Narrative
 {
@@ -35,80 +38,62 @@ namespace INTIFALL.Narrative
         [SerializeField] private AudioClip incomingCommSound;
         [SerializeField] private AudioClip commEndSound;
 
-        [Header("Messages - Level 1")]
-        [SerializeField] private string[] L01_MissionStart = new string[]
-        {
-            "Killa，我知道你被派去工业区镇压反叛者。\n\n但我要你完成任务后，在目标区域找一个石板。\n一个刻着古印加克丘亚语的石板。\n\n不要问为什么。\n不要交给任何人。\n完成后，在旧港 7 号仓库找我。\n\n我们等了你很久了，Valleys 的孩子。"
-        };
-        [SerializeField] private string[] L01_IntelFound = new string[]
-        {
-            "你找到了。\n\n那是 Qhipu 石板，古代用来存储数据的。\n你能感受到它，对吗？和你的血统共振。\n\n你看到的是什么？\n画面？声音？\n\n无论如何，不要让帝国得到它。\n如果被发现了...你就是叛逃者了。\n\n做你该做的事，Killa。"
-        };
-        [SerializeField] private string[] L01_MissionComplete = new string[]
-        {
-            "你做到了。\n\n现在是叛逃者了。\n来旧港 7 号仓库，秘密通道在左边第三个集装箱后面。\n\n我会解释一切。\n关于你的血统，关于这个帝国，关于 Qhipu...\n\n快点，帝国的追兵已经在路上了。"
-        };
+        [Header("Message Catalog")]
+        [SerializeField] private TextAsset messageCatalogJson;
+        [SerializeField] private bool preferResourceCatalog = true;
+        [SerializeField] private string messageCatalogResourcePath = "INTIFALL/Narrative/WillaMessages";
 
-        [Header("Messages - Level 2")]
-        [SerializeField] private string[] L02_MissionStart = new string[]
-        {
-            "Valleys 家族档案里有你的过去。\n\n我们截获了消息，帝国将家族纹章封存在数据中心。\n那是你们家族曾经辉煌的证明...也是他们流放你们的原因。\n\n找到它，Killa。\n你会明白为什么他们害怕你的血统。"
-        };
-        [SerializeField] private string[] L02_IntelFound = new string[]
-        {
-            "那是你们家族的纹章...\n\n他们流放了你。\n十二家族投票，认定 Valleys 血脉是威胁。\n但你知道吗？\n\n正是这个血脉，包含着对抗 Qhipu 的密钥。\n\n继续前进。你需要知道全部真相。"
-        };
-        [SerializeField] private string[] L02_MissionComplete = new string[]
-        {
-            "你看到了真相。\n\nValleys 从不是叛徒。\n是帝国篡改了历史，将失败归咎于你们的家族。\n\n你的血统不是诅咒。\n它是古老预言的钥匙。\n\n下一站：Aya-Tech 实验室。\n那里有帝国最黑暗的秘密。"
-        };
-
-        [Header("Messages - Level 3")]
-        [SerializeField] private string[] L03_MissionStart = new string[]
-        {
-            "Aya-Tech 实验室...帝国的阴影。\n\n他们在这里制造那些怪物——Saqueos。\n用活人做实验，将失败品变成听话的兵器。\n\n拿到证据，Killa。\n这些实验记录会摧毁帝国的神话。\n\n但要小心，那些怪物比普通士兵难对付得多。"
-        };
-        [SerializeField] private string[] L03_IntelFound = new string[]
-        {
-            "那是...第一代 Saqueos 的记录。\n\n他们用志愿者做实验。\n最初的想法是创造超级士兵...但代价太大了。\n\n皇帝知道这一切。\n他选择掩盖真相，继续制造怪物。\n\n你的血统...也许是对抗他们的关键。"
-        };
-        [SerializeField] private string[] L03_MissionComplete = new string[]
-        {
-            "证据拿到了。\n\n这会终结帝国的神话。\n用我们的方式——真相。\n\n下一站是太阳殿。\nQhipu 核心就在那里。\n\nKilla，你的血统将是打开它的钥匙。"
-        };
-
-        [Header("Messages - Level 4")]
-        [SerializeField] private string[] L04_MissionStart = new string[]
-        {
-            "Qhipu 核心在太阳殿深处。\n\n完整的预言就存储在那里。\n关于太阳的陨落...关于你血统的真正命运。\n\n小心 Quipucamayoc——数据祭司。\n他们会不惜一切代价保护 Qhipu。\n\n你的血统会带你找到答案。"
-        };
-        [SerializeField] private string[] L04_IntelFound = new string[]
-        {
-            "你看到了...预言的真相。\n\n太阳陨落不是毁灭——是选择。\n三个终局，三种命运。\n\n而你，Valleys 的孩子，\n将是唯一能做出选择的人。"
-        };
-        [SerializeField] private string[] L04_MissionComplete = new string[]
-        {
-            "真相大白了。\n\n预言不是诅咒，是工具。\n可以用来毁灭，也可以用来解放。\n\n终局就在太阳殿的核心。\n那里...将是你的战场。\n\n无论你选择什么，Killa，我们都与你同在。"
-        };
-
-        [Header("Messages - Level 5")]
-        [SerializeField] private string[] L05_MissionStart = new string[]
-        {
-            "这是终局，Killa。\n\n三个选择摆在面前：\n执行预言，让帝国在崩溃中重建；\n封印预言，让太阳永恒照耀；\n或篡改预言，让你的血统成为新的帝王。\n\n每个选择都有代价。\n每个选择都会改变一切。\n\n无论你选什么...我们都与你同在。"
-        };
-        [SerializeField] private string[] L05_StoryReveal = new string[]
-        {
-            "现在你知道了一切。\n\n关于你的血统，关于预言，关于这个帝国的真正本质。\n\n选择吧，Valleys 的孩子。\n太阳将根据你的意志陨落或升起。"
-        };
-        [SerializeField] private string[] L05_Warning = new string[]
-        {
-            "小心！敌人就在你身后！\n\n时间不多了，Killa。\n做出你的选择。"
-        };
+        [Header("Auto Trigger")]
+        [SerializeField] private bool autoBindEventBus = true;
+        [SerializeField] private bool autoMissionStartOnLevelLoad = true;
+        [SerializeField] private bool autoIntelFoundOnFirstCollect = true;
+        [SerializeField] private bool autoMissionCompleteOnOutcome = true;
+        [SerializeField] private bool autoWarningOnThreatSpike = true;
+        [SerializeField] private bool autoStoryRevealOnNarrativeEvent = true;
+        [SerializeField] private bool autoEndingBranchOnFinalOutcome = true;
 
         private bool _isDisplaying;
         private bool _isTyping;
         private float _displayTimer;
         private AudioSource _audioSource;
+        private EWillaTrigger _currentTrigger;
+        private int _currentLevel;
+        private Dictionary<WillaMessageCatalog.MessageKey, string[]> _messageCatalog;
+        private readonly Queue<WillaCommRequest> _pendingMessages = new();
+        private readonly HashSet<int> _missionStartAnnouncedLevels = new();
+        private readonly HashSet<int> _intelFoundAnnouncedLevels = new();
+        private readonly HashSet<int> _missionCompleteAnnouncedLevels = new();
+        private readonly HashSet<int> _warningAnnouncedLevels = new();
+        private readonly HashSet<int> _storyRevealAnnouncedLevels = new();
+        private readonly HashSet<int> _betrayalAnnouncedLevels = new();
+        private readonly Dictionary<int, MissionOutcomeSnapshot> _latestMissionOutcomeByLevel = new();
+
+        private struct WillaCommRequest
+        {
+            public EWillaTrigger Trigger;
+            public int LevelIndex;
+        }
+
+        private struct MissionOutcomeSnapshot
+        {
+            public string Rank;
+            public int RankScore;
+            public int CreditsEarned;
+            public int IntelCollected;
+            public int IntelRequired;
+            public int SecondaryObjectivesCompleted;
+            public int SecondaryObjectivesTotal;
+            public bool ZeroKill;
+            public bool NoDamage;
+            public bool WasDiscovered;
+            public bool FullAlertTriggered;
+            public string ExtractionRouteLabel;
+            public bool UsedOptionalExit;
+            public int RouteRiskTier;
+            public float RouteCreditMultiplier;
+            public int ToolsUsed;
+            public int AlertsTriggered;
+        }
 
         public bool IsDisplaying => _isDisplaying;
 
@@ -120,6 +105,44 @@ namespace INTIFALL.Narrative
 
             if (commPanel != null)
                 commPanel.SetActive(false);
+
+            ReloadMessageCatalog();
+        }
+
+        private void Start()
+        {
+            if (!autoMissionStartOnLevelLoad)
+                return;
+
+            if (autoBindEventBus)
+                return;
+
+            int levelIndex = ResolveCurrentLevelIndex();
+            TryTriggerMissionStart(levelIndex);
+        }
+
+        private void OnEnable()
+        {
+            if (!autoBindEventBus)
+                return;
+
+            EventBus.Subscribe<LevelLoadedEvent>(OnLevelLoaded);
+            EventBus.Subscribe<IntelCollectedInSceneEvent>(OnIntelCollectedInScene);
+            EventBus.Subscribe<MissionOutcomeEvaluatedEvent>(OnMissionOutcomeEvaluated);
+            EventBus.Subscribe<AlertStateChangedEvent>(OnAlertStateChanged);
+            EventBus.Subscribe<NarrativeTriggeredEvent>(OnNarrativeTriggered);
+        }
+
+        private void OnDisable()
+        {
+            if (!autoBindEventBus)
+                return;
+
+            EventBus.Unsubscribe<LevelLoadedEvent>(OnLevelLoaded);
+            EventBus.Unsubscribe<IntelCollectedInSceneEvent>(OnIntelCollectedInScene);
+            EventBus.Unsubscribe<MissionOutcomeEvaluatedEvent>(OnMissionOutcomeEvaluated);
+            EventBus.Unsubscribe<AlertStateChangedEvent>(OnAlertStateChanged);
+            EventBus.Unsubscribe<NarrativeTriggeredEvent>(OnNarrativeTriggered);
         }
 
         private void Update()
@@ -128,71 +151,190 @@ namespace INTIFALL.Narrative
             {
                 _displayTimer += Time.deltaTime;
                 if (_displayTimer >= autoCloseDelay)
-                {
                     CloseComm();
-                }
             }
+        }
+
+        public void ReloadMessageCatalog()
+        {
+            TextAsset selectedCatalog = messageCatalogJson;
+            if (preferResourceCatalog && !string.IsNullOrEmpty(messageCatalogResourcePath))
+            {
+                TextAsset loaded = Resources.Load<TextAsset>(messageCatalogResourcePath);
+                if (loaded != null)
+                    selectedCatalog = loaded;
+            }
+
+            string json = selectedCatalog != null ? selectedCatalog.text : string.Empty;
+            _messageCatalog = WillaMessageCatalog.BuildEffectiveCatalog(json, out int importedEntries, out string warning);
+
+            if (!string.IsNullOrEmpty(warning))
+                Debug.LogWarning($"WillaComm: message catalog warning: {warning}");
+
+            if (importedEntries > 0)
+                Debug.Log($"WillaComm: loaded {importedEntries} custom message entries.");
         }
 
         public void TriggerComm(EWillaTrigger trigger, int levelIndex)
         {
-            string[] messages = GetMessagesForTrigger(trigger, levelIndex);
-            if (messages == null || messages.Length == 0) return;
+            if (_isDisplaying)
+            {
+                _pendingMessages.Enqueue(new WillaCommRequest
+                {
+                    Trigger = trigger,
+                    LevelIndex = levelIndex
+                });
+                return;
+            }
 
-            string message = messages[Random.Range(0, messages.Length)];
+            if (!TryDisplayMessage(trigger, levelIndex))
+                return;
+        }
+
+        private bool TryDisplayMessage(EWillaTrigger trigger, int levelIndex)
+        {
+            string[] messages = GetMessagesForTrigger(trigger, levelIndex);
+            if (messages == null || messages.Length == 0)
+                return false;
+
+            string template = messages[Random.Range(0, messages.Length)];
+            string message = ResolveRuntimeMessage(trigger, levelIndex, template);
             DisplayMessage(trigger, levelIndex, message);
+            return true;
         }
 
         private string[] GetMessagesForTrigger(EWillaTrigger trigger, int levelIndex)
         {
-            return (levelIndex, trigger) switch
+            if (_messageCatalog == null)
+                ReloadMessageCatalog();
+
+            int normalizedLevel = Mathf.Max(0, levelIndex);
+            if (_messageCatalog != null &&
+                _messageCatalog.TryGetValue(new WillaMessageCatalog.MessageKey(normalizedLevel, trigger), out string[] levelSpecific))
             {
-                (0, EWillaTrigger.MissionStart) => L01_MissionStart,
-                (0, EWillaTrigger.IntelFound) => L01_IntelFound,
-                (0, EWillaTrigger.MissionComplete) => L01_MissionComplete,
-                (1, EWillaTrigger.MissionStart) => L02_MissionStart,
-                (1, EWillaTrigger.IntelFound) => L02_IntelFound,
-                (1, EWillaTrigger.MissionComplete) => L02_MissionComplete,
-                (2, EWillaTrigger.MissionStart) => L03_MissionStart,
-                (2, EWillaTrigger.IntelFound) => L03_IntelFound,
-                (2, EWillaTrigger.MissionComplete) => L03_MissionComplete,
-                (3, EWillaTrigger.MissionStart) => L04_MissionStart,
-                (3, EWillaTrigger.IntelFound) => L04_IntelFound,
-                (3, EWillaTrigger.MissionComplete) => L04_MissionComplete,
-                (4, EWillaTrigger.MissionStart) => L05_MissionStart,
-                (4, EWillaTrigger.StoryReveal) => L05_StoryReveal,
-                (4, EWillaTrigger.Warning) => L05_Warning,
-                _ => GetDefaultMessages(trigger)
+                return levelSpecific;
+            }
+
+            if (_messageCatalog != null &&
+                _messageCatalog.TryGetValue(new WillaMessageCatalog.MessageKey(-1, trigger), out string[] fallback))
+            {
+                return fallback;
+            }
+
+            return global::System.Array.Empty<string>();
+        }
+
+        private string ResolveRuntimeMessage(EWillaTrigger trigger, int levelIndex, string template)
+        {
+            if (string.IsNullOrEmpty(template))
+                return string.Empty;
+
+            if (trigger != EWillaTrigger.MissionComplete)
+                return template;
+
+            MissionOutcomeSnapshot snapshot = GetMissionOutcomeSnapshot(levelIndex);
+            return ApplyMissionOutcomeTokens(template, snapshot);
+        }
+
+        private MissionOutcomeSnapshot GetMissionOutcomeSnapshot(int levelIndex)
+        {
+            int normalizedLevel = Mathf.Max(0, levelIndex);
+            if (_latestMissionOutcomeByLevel.TryGetValue(normalizedLevel, out MissionOutcomeSnapshot snapshot))
+                return snapshot;
+
+            return new MissionOutcomeSnapshot
+            {
+                Rank = "N/A",
+                RankScore = 0,
+                CreditsEarned = 0,
+                IntelCollected = 0,
+                IntelRequired = 0,
+                SecondaryObjectivesCompleted = 0,
+                SecondaryObjectivesTotal = 2,
+                ZeroKill = false,
+                NoDamage = false,
+                WasDiscovered = true,
+                FullAlertTriggered = false,
+                ExtractionRouteLabel = LocalizationService.Get("route.main", fallbackEnglish: "Main Extraction", fallbackChinese: string.Empty),
+                UsedOptionalExit = false,
+                RouteRiskTier = 0,
+                RouteCreditMultiplier = 1f,
+                ToolsUsed = 0,
+                AlertsTriggered = 0
             };
         }
 
-        private string[] GetDefaultMessages(EWillaTrigger trigger)
+        private static string ApplyMissionOutcomeTokens(string template, MissionOutcomeSnapshot snapshot)
         {
-            return trigger switch
-            {
-                EWillaTrigger.MissionStart => new string[] { "专注于任务，Killa。" },
-                EWillaTrigger.Warning => new string[] { "小心，Killa。危险临近。" },
-                EWillaTrigger.Betrayal => new string[] { "情况有变，保持警惕。" },
-                _ => new string[] { "继续前进。" }
-            };
+            int intelMissing = Mathf.Max(0, snapshot.IntelRequired - snapshot.IntelCollected);
+            int secondaryTotal = snapshot.SecondaryObjectivesTotal <= 0 ? 2 : snapshot.SecondaryObjectivesTotal;
+            string stealthStatus = GetStealthStatus(snapshot.WasDiscovered, snapshot.FullAlertTriggered);
+            string combatStyle = snapshot.ZeroKill
+                ? LocalizationService.Get("debrief.combat.zero_kill", fallbackEnglish: "Zero-Kill", fallbackChinese: string.Empty)
+                : LocalizationService.Get("debrief.combat.lethal", fallbackEnglish: "Lethal", fallbackChinese: string.Empty);
+            string damageStatus = snapshot.NoDamage
+                ? LocalizationService.Get("willa.damage.no_damage", fallbackEnglish: "No-Damage", fallbackChinese: string.Empty)
+                : LocalizationService.Get("willa.damage.took_damage", fallbackEnglish: "Took Damage", fallbackChinese: string.Empty);
+            string routeLabel = string.IsNullOrWhiteSpace(snapshot.ExtractionRouteLabel)
+                ? LocalizationService.Get("route.main", fallbackEnglish: "Main Extraction", fallbackChinese: string.Empty)
+                : snapshot.ExtractionRouteLabel;
+            string routeType = snapshot.UsedOptionalExit
+                ? LocalizationService.Get("debrief.route.optional", fallbackEnglish: "Optional", fallbackChinese: string.Empty)
+                : LocalizationService.Get("debrief.route.main", fallbackEnglish: "Main", fallbackChinese: string.Empty);
+
+            return template
+                .Replace("{rank}", string.IsNullOrEmpty(snapshot.Rank) ? LocalizationService.Get("common.na", fallbackEnglish: "N/A", fallbackChinese: string.Empty) : snapshot.Rank)
+                .Replace("{rank_score}", snapshot.RankScore.ToString())
+                .Replace("{credits}", snapshot.CreditsEarned.ToString())
+                .Replace("{intel_collected}", snapshot.IntelCollected.ToString())
+                .Replace("{intel_required}", snapshot.IntelRequired.ToString())
+                .Replace("{intel_missing}", intelMissing.ToString())
+                .Replace("{secondary_completed}", snapshot.SecondaryObjectivesCompleted.ToString())
+                .Replace("{secondary_total}", secondaryTotal.ToString())
+                .Replace("{stealth_status}", stealthStatus)
+                .Replace("{combat_style}", combatStyle)
+                .Replace("{damage_status}", damageStatus)
+                .Replace("{route_label}", routeLabel)
+                .Replace("{route_type}", routeType)
+                .Replace("{route_risk}", snapshot.RouteRiskTier.ToString())
+                .Replace("{route_multiplier}", snapshot.RouteCreditMultiplier.ToString("0.00"))
+                .Replace("{tools_used}", snapshot.ToolsUsed.ToString())
+                .Replace("{alerts_triggered}", snapshot.AlertsTriggered.ToString());
+        }
+
+        private static string GetStealthStatus(bool wasDiscovered, bool fullAlertTriggered)
+        {
+            if (!wasDiscovered && !fullAlertTriggered)
+                return LocalizationService.Get("debrief.stealth.undetected", fallbackEnglish: "Undetected", fallbackChinese: string.Empty);
+            if (fullAlertTriggered)
+                return LocalizationService.Get("debrief.stealth.full_alert", fallbackEnglish: "Full Alert", fallbackChinese: string.Empty);
+            return LocalizationService.Get("debrief.stealth.spotted", fallbackEnglish: "Spotted", fallbackChinese: string.Empty);
         }
 
         private void DisplayMessage(EWillaTrigger trigger, int levelIndex, string message)
         {
-            if (_isDisplaying) return;
+            if (_isDisplaying)
+                return;
 
             _isDisplaying = true;
             _isTyping = true;
             _displayTimer = 0f;
+            _currentTrigger = trigger;
+            _currentLevel = levelIndex;
 
             if (commPanel != null)
                 commPanel.SetActive(true);
 
             if (speakerNameText != null)
-                speakerNameText.text = "[鸦 - 加密频道]";
+            {
+                speakerNameText.text = LocalizationService.Get(
+                    "willa.speaker.secure",
+                    fallbackEnglish: "[Willa - Secure Channel]",
+                    fallbackChinese: string.Empty);
+            }
 
             if (messageText != null)
-                messageText.text = "";
+                messageText.text = string.Empty;
 
             if (incomingCommSound != null)
                 _audioSource.PlayOneShot(incomingCommSound);
@@ -200,16 +342,18 @@ namespace INTIFALL.Narrative
             StartCoroutine(TypeMessage(message));
         }
 
-        private System.Collections.IEnumerator TypeMessage(string message)
+        private global::System.Collections.IEnumerator TypeMessage(string message)
         {
             _isTyping = true;
 
             if (messageText != null)
             {
-                foreach (char c in message)
+                float interval = Mathf.Max(0f, typingSpeed);
+                for (int i = 0; i < message.Length; i++)
                 {
-                    messageText.text += c;
-                    yield return new WaitForSeconds(typingSpeed);
+                    messageText.text += message[i];
+                    if (interval > 0f)
+                        yield return new WaitForSeconds(interval);
                 }
             }
 
@@ -217,15 +361,210 @@ namespace INTIFALL.Narrative
 
             EventBus.Publish(new WillaMessageEvent
             {
-                trigger = EWillaTrigger.MissionStart,
-                levelIndex = 0,
+                trigger = _currentTrigger,
+                levelIndex = _currentLevel,
                 messageKey = message
             });
         }
 
+        private void OnLevelLoaded(LevelLoadedEvent evt)
+        {
+            _currentLevel = Mathf.Max(0, evt.levelIndex);
+            ResetPerLevelTriggerState(_currentLevel);
+            TryTriggerMissionStart(_currentLevel);
+        }
+
+        private void OnIntelCollectedInScene(IntelCollectedInSceneEvent evt)
+        {
+            if (!autoIntelFoundOnFirstCollect)
+                return;
+
+            int levelIndex = Mathf.Max(0, evt.levelIndex);
+            if (_intelFoundAnnouncedLevels.Contains(levelIndex))
+                return;
+
+            _intelFoundAnnouncedLevels.Add(levelIndex);
+            TriggerComm(EWillaTrigger.IntelFound, levelIndex);
+        }
+
+        private void OnMissionOutcomeEvaluated(MissionOutcomeEvaluatedEvent evt)
+        {
+            int levelIndex = Mathf.Max(0, evt.levelIndex);
+            _latestMissionOutcomeByLevel[levelIndex] = new MissionOutcomeSnapshot
+            {
+                Rank = evt.rank,
+                RankScore = evt.rankScore,
+                CreditsEarned = evt.creditsEarned,
+                IntelCollected = evt.intelCollected,
+                IntelRequired = evt.intelRequired,
+                SecondaryObjectivesCompleted = evt.secondaryObjectivesCompleted,
+                SecondaryObjectivesTotal = evt.secondaryObjectivesTotal,
+                ZeroKill = evt.zeroKill,
+                NoDamage = evt.noDamage,
+                WasDiscovered = evt.wasDiscovered,
+                FullAlertTriggered = evt.fullAlertTriggered,
+                ExtractionRouteLabel = evt.extractionRouteLabel,
+                UsedOptionalExit = evt.usedOptionalExit,
+                RouteRiskTier = evt.routeRiskTier,
+                RouteCreditMultiplier = evt.routeCreditMultiplier,
+                ToolsUsed = evt.toolsUsed,
+                AlertsTriggered = evt.alertsTriggered
+            };
+
+            if (autoMissionCompleteOnOutcome && !_missionCompleteAnnouncedLevels.Contains(levelIndex))
+            {
+                _missionCompleteAnnouncedLevels.Add(levelIndex);
+                TriggerComm(EWillaTrigger.MissionComplete, levelIndex);
+            }
+
+            if (!autoEndingBranchOnFinalOutcome || levelIndex < 4)
+                return;
+
+            bool betrayalBranch = evt.fullAlertTriggered || evt.rankScore <= 2;
+            if (betrayalBranch)
+                TryTriggerBetrayal(levelIndex);
+            else
+                TryTriggerStoryReveal(levelIndex);
+        }
+
+        private void OnAlertStateChanged(AlertStateChangedEvent evt)
+        {
+            if (!autoWarningOnThreatSpike)
+                return;
+            if (evt.newState != EAlertState.FullAlert)
+                return;
+
+            int levelIndex = ResolveActiveLevelIndex();
+            TryTriggerWarning(levelIndex);
+        }
+
+        private void OnNarrativeTriggered(NarrativeTriggeredEvent evt)
+        {
+            if (!autoStoryRevealOnNarrativeEvent)
+                return;
+
+            int levelIndex = Mathf.Max(0, evt.levelIndex);
+            switch (evt.eventType)
+            {
+                case ENarrativeEventType.BloodlineResonance:
+                    TryTriggerStoryReveal(levelIndex);
+                    break;
+                case ENarrativeEventType.EndingChoice:
+                    if (!string.IsNullOrWhiteSpace(evt.eventId) &&
+                        evt.eventId.IndexOf("betray", global::System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        TryTriggerBetrayal(levelIndex);
+                    }
+                    else
+                    {
+                        TryTriggerStoryReveal(levelIndex);
+                    }
+                    break;
+            }
+        }
+
+        private void TryTriggerWarning(int levelIndex)
+        {
+            int normalizedLevel = Mathf.Max(0, levelIndex);
+            if (_warningAnnouncedLevels.Contains(normalizedLevel))
+                return;
+
+            _warningAnnouncedLevels.Add(normalizedLevel);
+            TriggerComm(EWillaTrigger.Warning, normalizedLevel);
+        }
+
+        private void TryTriggerStoryReveal(int levelIndex)
+        {
+            int normalizedLevel = Mathf.Max(0, levelIndex);
+            if (_storyRevealAnnouncedLevels.Contains(normalizedLevel))
+                return;
+
+            _storyRevealAnnouncedLevels.Add(normalizedLevel);
+            TriggerComm(EWillaTrigger.StoryReveal, normalizedLevel);
+        }
+
+        private void TryTriggerBetrayal(int levelIndex)
+        {
+            int normalizedLevel = Mathf.Max(0, levelIndex);
+            if (_betrayalAnnouncedLevels.Contains(normalizedLevel))
+                return;
+
+            _betrayalAnnouncedLevels.Add(normalizedLevel);
+            TriggerComm(EWillaTrigger.Betrayal, normalizedLevel);
+        }
+
+        private void TryTriggerMissionStart(int levelIndex)
+        {
+            if (!autoMissionStartOnLevelLoad)
+                return;
+
+            int normalizedLevel = Mathf.Max(0, levelIndex);
+            if (_missionStartAnnouncedLevels.Contains(normalizedLevel))
+                return;
+
+            _missionStartAnnouncedLevels.Add(normalizedLevel);
+            TriggerComm(EWillaTrigger.MissionStart, normalizedLevel);
+        }
+
+        private void ResetPerLevelTriggerState(int levelIndex)
+        {
+            int normalizedLevel = Mathf.Max(0, levelIndex);
+            _missionStartAnnouncedLevels.Remove(normalizedLevel);
+            _intelFoundAnnouncedLevels.Remove(normalizedLevel);
+            _missionCompleteAnnouncedLevels.Remove(normalizedLevel);
+            _warningAnnouncedLevels.Remove(normalizedLevel);
+            _storyRevealAnnouncedLevels.Remove(normalizedLevel);
+            _betrayalAnnouncedLevels.Remove(normalizedLevel);
+            _latestMissionOutcomeByLevel.Remove(normalizedLevel);
+        }
+
+        private int ResolveActiveLevelIndex()
+        {
+            return Mathf.Max(0, _currentLevel);
+        }
+
+        private int ResolveCurrentLevelIndex()
+        {
+            LevelLoader loader = Object.FindFirstObjectByType<LevelLoader>();
+            if (loader != null)
+            {
+                var levelData = loader.GetLevelData();
+                if (levelData != null)
+                    return Mathf.Max(0, levelData.levelIndex);
+            }
+
+            LevelFlowManager flow = Object.FindFirstObjectByType<LevelFlowManager>();
+            if (flow != null)
+                return Mathf.Max(0, flow.CurrentLevelIndex);
+
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName.StartsWith("Level0") && sceneName.Length >= 7)
+            {
+                string indexText = sceneName.Substring(6, 1);
+                if (int.TryParse(indexText, out int indexFromScene))
+                    return Mathf.Max(0, indexFromScene - 1);
+            }
+
+            return 0;
+        }
+
+        private void TryDisplayNextPendingMessage()
+        {
+            if (_isDisplaying)
+                return;
+
+            while (_pendingMessages.Count > 0)
+            {
+                WillaCommRequest next = _pendingMessages.Dequeue();
+                if (TryDisplayMessage(next.Trigger, next.LevelIndex))
+                    break;
+            }
+        }
+
         public void CloseComm()
         {
-            if (!_isDisplaying) return;
+            if (!_isDisplaying)
+                return;
 
             _isDisplaying = false;
             _isTyping = false;
@@ -236,13 +575,18 @@ namespace INTIFALL.Narrative
 
             if (commEndSound != null)
                 _audioSource.PlayOneShot(commEndSound);
+
+            TryDisplayNextPendingMessage();
         }
 
         public void SkipTyping()
         {
-            if (!_isTyping) return;
+            if (!_isTyping)
+                return;
+
             StopAllCoroutines();
             _isTyping = false;
         }
     }
 }
+

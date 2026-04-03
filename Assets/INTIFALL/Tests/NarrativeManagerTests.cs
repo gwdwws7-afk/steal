@@ -89,5 +89,18 @@ namespace INTIFALL.Tests
 
             Assert.AreEqual(2, _narrative.GetIntelCollectedForLevel(0));
         }
+
+        [Test]
+        public void GetIntelCollectedForLevel_DoesNotCapAtThree()
+        {
+            _narrative.CollectIntel("terminal_a", 0);
+            _narrative.CollectIntel("terminal_b", 0);
+            _narrative.CollectIntel("terminal_c", 0);
+            _narrative.CollectIntel("terminal_d", 0);
+            _narrative.CollectIntel("qhipu_01", 0);
+
+            Assert.AreEqual(5, _narrative.GetIntelCollectedForLevel(0));
+            Assert.AreEqual(5, _narrative.IntelCollected);
+        }
     }
 }

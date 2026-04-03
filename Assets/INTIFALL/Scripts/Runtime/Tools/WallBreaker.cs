@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using INTIFALL.Audio;
 using INTIFALL.Environment;
 using INTIFALL.System;
 
@@ -7,8 +8,8 @@ namespace INTIFALL.Tools
     public class WallBreaker : ToolBase
     {
         [Header("WallBreak Specific")]
-        [SerializeField] private float breakTime = 3f;
-        [SerializeField] private float range = 2f;
+        [SerializeField] private float breakTime = 2.6f;
+        [SerializeField] private float interactionRange = 2.4f;
         [SerializeField] private AudioClip[] breakSounds;
         [SerializeField] private GameObject breakEffectPrefab;
 
@@ -22,30 +23,38 @@ namespace INTIFALL.Tools
         private void Awake()
         {
             toolName = "WallBreaker";
-            toolNameCN = "凿石礼";
+            toolNameCN = "Wall Breaker";
             category = EToolCategory.Environmental;
             defaultSlot = EToolSlot.Slot2;
-            cooldown = 10f;
-            maxAmmo = 3;
+            cooldown = 7f;
+            maxAmmo = 2;
             _currentAmmo = maxAmmo;
-            range = 2f;
+            range = 2.4f;
+            duration = 2.6f;
         }
 
         public override bool CanUse()
         {
-            if (_isBreaking) return false;
-            if (!base.CanUse()) return false;
-            return FindBreakableWall() != null;
+            if (_isBreaking)
+                return false;
+            if (!base.CanUse())
+                return false;
+
+            float effectiveRange = range > 0f ? range : interactionRange;
+            return FindBreakableWall(effectiveRange) != null;
         }
 
         public override void Use()
         {
-            _targetWall = FindBreakableWall();
-            if (_targetWall == null) return;
+            float effectiveRange = range > 0f ? range : interactionRange;
+            _targetWall = FindBreakableWall(effectiveRange);
+            if (_targetWall == null)
+                return;
 
             _isBreaking = true;
             _breakProgress = 0f;
-            _currentAmmo--;
+            if (HasLimitedAmmo)
+                _currentAmmo = Mathf.Max(0, _currentAmmo - 1);
 
             EventBus.Publish(new WallBreakStartedByToolEvent
             {
@@ -53,27 +62,40 @@ namespace INTIFALL.Tools
             });
         }
 
-        private void Update()
+        public override void Update()
         {
-            if (!_isBreaking) return;
+            base.Update();
+
+            if (!_isBreaking)
+                return;
             if (_targetWall == null)
             {
                 CancelBreak();
                 return;
             }
 
-            if (Vector3.Distance(transform.position, _targetWall.transform.position) > range)
+            float effectiveBreakTime = duration > 0f ? duration : breakTime;
+            float effectiveRange = range > 0f ? range : interactionRange;
+            if (Vector3.Distance(transform.position, _targetWall.transform.position) > effectiveRange)
             {
                 CancelBreak();
                 return;
             }
 
-            _breakProgress += Time.deltaTime / breakTime;
+            _breakProgress += Time.deltaTime / Mathf.Max(0.1f, effectiveBreakTime);
 
             if (_breakProgress >= 1f)
             {
                 CompleteBreak();
             }
+        }
+
+        protected override void OnApplyToolData(ToolData data)
+        {
+            if (data.duration > 0f)
+                breakTime = data.duration;
+            if (data.range > 0f)
+                interactionRange = data.range;
         }
 
         private void CompleteBreak()
@@ -103,7 +125,7 @@ namespace INTIFALL.Tools
             _targetWall = null;
             _breakProgress = 0f;
             _currentCooldown = cooldown;
-            _isOnCooldown = true;
+            _isOnCooldown = _currentCooldown > 0f;
         }
 
         private void CancelBreak()
@@ -112,19 +134,20 @@ namespace INTIFALL.Tools
             _targetWall = null;
             _breakProgress = 0f;
 
-            if (_currentAmmo < maxAmmo)
+            if (HasLimitedAmmo && _currentAmmo < maxAmmo)
                 _currentAmmo++;
         }
 
-        private BreakableWall FindBreakableWall()
+        private BreakableWall FindBreakableWall(float scanRange)
         {
-            Collider[] hits = Physics.OverlapSphere(transform.position, range);
+            Collider[] hits = Physics.OverlapSphere(transform.position, scanRange);
             foreach (Collider hit in hits)
             {
                 var wall = hit.GetComponent<BreakableWall>();
                 if (wall != null && !wall.IsBroken)
                     return wall;
             }
+
             return null;
         }
 

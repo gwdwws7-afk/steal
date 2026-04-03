@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using INTIFALL.Level;
 using UnityEngine;
 
@@ -31,8 +31,8 @@ namespace INTIFALL.Tests
         [Test]
         public void GetLevelSceneName_ValidIndex_ReturnsName()
         {
-            Assert.AreEqual("Level_01", _flow.GetLevelSceneName(0));
-            Assert.AreEqual("Level_05", _flow.GetLevelSceneName(4));
+            Assert.AreEqual("Level01_Qhapaq_Passage", _flow.GetLevelSceneName(0));
+            Assert.AreEqual("Level05_General_Taki_Villa", _flow.GetLevelSceneName(4));
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace INTIFALL.Tests
         [Test]
         public void GetLevelDisplayName_ValidIndex_ReturnsName()
         {
-            Assert.AreEqual("黄金雨", _flow.GetLevelDisplayName(0));
+            Assert.AreEqual("Golden Ruins", _flow.GetLevelDisplayName(0));
         }
 
         [Test]
@@ -69,8 +69,8 @@ namespace INTIFALL.Tests
         [Test]
         public void GetLevelIndexFromSceneName_Valid_ReturnsIndex()
         {
-            Assert.AreEqual(0, _flow.GetLevelIndexFromSceneName("Level_01"));
-            Assert.AreEqual(4, _flow.GetLevelIndexFromSceneName("Level_05"));
+            Assert.AreEqual(0, _flow.GetLevelIndexFromSceneName("Level01_Qhapaq_Passage"));
+            Assert.AreEqual(4, _flow.GetLevelIndexFromSceneName("Level05_General_Taki_Villa"));
         }
 
         [Test]

@@ -1,0 +1,59 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbdd831568b48bf43b6e80f0b4af0b1a, type: 3}
+  m_Name: LevelData_Level03_Underground_Labs
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.LevelData
+  levelName: Level03_Underground_Labs
+  levelDisplayName: L03 Leech Awakening Lab
+  levelIndex: 2
+  sceneName: Level03_Underground_Labs
+
+  plannedMainRoutes: 2
+  plannedStealthRoutes: 1
+  designedCompletionMinutes: 18
+  completionWindowMinMinutes: 16
+  completionWindowMaxMinutes: 20
+  patrolPressureTier: 3
+  enemyDensityTargetPerMinute: 0.45
+  flowNotes: Lab corridor or reactor hall entry with one tunnel stealth bypass.
+  infiltrationMinutes: 6
+  objectiveMinutes: 7
+  extractionMinutes: 5
+  infiltrationEnemyBudget: 2
+  objectiveEnemyBudget: 4
+  extractionEnemyBudget: 2
+  encounterNotes: Entry checkpoint lattice, lab cluster containment, tunnel extraction chase.
+  standardTime: 1080
+  timeLimit: 1260
+  totalEnemyCount: 8
+  normalEnemyCount: 3
+  reinforcedEnemyCount: 2
+  heavyEnemyCount: 0
+  quipucamayocCount: 0
+  saqueosCount: 3
+  qhipuFragmentCount: 3
+  terminalCount: 4
+  supplyPointCount: 4
+  baseAlertDuration: 5.5
+  searchDuration: 9.5
+  fullAlertDuration: 33
+  hasVentSystem: 1
+  hasHangingPoints: 1
+  hasBreakableWalls: 0
+  hasElectronicDoors: 1
+  hasSurveillanceCameras: 1
+  baseCreditReward: 300
+  secondaryObjectiveBonus: 75
+  zeroKillBonus: 180
+  noDamageBonus: 210
+
+

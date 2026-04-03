@@ -40,6 +40,7 @@ namespace INTIFALL.Tests
         [Test]
         public void CompleteLevel_Level2_UnlocksMoreTools()
         {
+            _progression.CompleteLevel(1);
             _progression.CompleteLevel(2);
             Assert.IsTrue(_progression.IsToolUnlocked("TimedNoise"));
             Assert.IsTrue(_progression.IsToolUnlocked("WallBreak"));

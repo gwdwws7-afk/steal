@@ -11,6 +11,27 @@ namespace INTIFALL.Data
         public int levelIndex;
         public string sceneName;
 
+        [Header("Flow Design")]
+        public int plannedMainRoutes = 2;
+        public int plannedStealthRoutes = 1;
+        public float designedCompletionMinutes = 12f;
+        public float completionWindowMinMinutes = 10f;
+        public float completionWindowMaxMinutes = 14f;
+        [Range(1, 5)] public int patrolPressureTier = 1;
+        public float enemyDensityTargetPerMinute = 0.5f;
+        [TextArea] public string flowNotes;
+
+        [Header("Phase Timing (Minutes)")]
+        public float infiltrationMinutes = 4f;
+        public float objectiveMinutes = 5f;
+        public float extractionMinutes = 3f;
+
+        [Header("Encounter Allocation")]
+        public int infiltrationEnemyBudget = 2;
+        public int objectiveEnemyBudget = 3;
+        public int extractionEnemyBudget = 1;
+        [TextArea] public string encounterNotes;
+
         [Header("Timing")]
         public float standardTime = 300f;
         public float timeLimit = 600f;

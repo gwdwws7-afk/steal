@@ -86,9 +86,9 @@ namespace INTIFALL.Player
             if (enemy == null) return;
 
             int newIndex = _trackedEnemyCount;
-            System.Array.Resize(ref _trackedEnemies, newIndex + 1);
-            System.Array.Resize(ref _enemyAlertTimers, newIndex + 1);
-            System.Array.Resize(ref _enemyWasAlerted, newIndex + 1);
+            global::System.Array.Resize(ref _trackedEnemies, newIndex + 1);
+            global::System.Array.Resize(ref _enemyAlertTimers, newIndex + 1);
+            global::System.Array.Resize(ref _enemyWasAlerted, newIndex + 1);
 
             _trackedEnemies[newIndex] = enemy;
             _enemyAlertTimers[newIndex] = 0f;

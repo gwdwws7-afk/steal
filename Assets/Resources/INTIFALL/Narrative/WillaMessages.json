@@ -1,0 +1,133 @@
+﻿{
+  "entries": [
+    {
+      "levelIndex": 0,
+      "trigger": "MissionStart",
+      "messages": [
+        "Killa, first breach route is live. Stay low and stay unheard.",
+        "Primary objective is intel capture. Avoid open combat."
+      ]
+    },
+    {
+      "levelIndex": 0,
+      "trigger": "IntelFound",
+      "messages": [
+        "First fragment secured. Uplink is stable.",
+        "Good pull. Move to extraction before patrol rotation closes."
+      ]
+    },
+    {
+      "levelIndex": 0,
+      "trigger": "MissionComplete",
+      "messages": [
+        "Refinery sector clear. Rank {rank}, credits {credits}, stealth {stealth_status}, route {route_label} ({route_type})."
+      ]
+    },
+    {
+      "levelIndex": 1,
+      "trigger": "MissionStart",
+      "messages": [
+        "Archive layer is awake. Patrol density is higher than Sector One.",
+        "Recover bloodline records and keep your footprint minimal."
+      ]
+    },
+    {
+      "levelIndex": 1,
+      "trigger": "IntelFound",
+      "messages": [
+        "Archive shard recovered. Their revision history is collapsing.",
+        "Confirmed. Your exile file was manufactured."
+      ]
+    },
+    {
+      "levelIndex": 1,
+      "trigger": "MissionComplete",
+      "messages": [
+        "Archive breach complete. Rank {rank}, intel {intel_collected}/{intel_required}, credits {credits}, route {route_label}."
+      ]
+    },
+    {
+      "levelIndex": 2,
+      "trigger": "MissionStart",
+      "messages": [
+        "Labs are hot. Expect tight response windows.",
+        "Pull field logs and avoid prolonged contact."
+      ]
+    },
+    {
+      "levelIndex": 2,
+      "trigger": "IntelFound",
+      "messages": [
+        "Lab evidence confirms Saqueos trials.",
+        "Command signatures matched. Keep collecting proof."
+      ]
+    },
+    {
+      "levelIndex": 2,
+      "trigger": "MissionComplete",
+      "messages": [
+        "Lab packet secured. Rank {rank}, combat {combat_style}, intel missing {intel_missing}, alerts {alerts_triggered}, tools {tools_used}."
+      ]
+    },
+    {
+      "levelIndex": 3,
+      "trigger": "MissionStart",
+      "messages": [
+        "Qhipu core ahead. Security escalation is guaranteed.",
+        "This node controls the branching outcomes. Stay precise."
+      ]
+    },
+    {
+      "levelIndex": 3,
+      "trigger": "IntelFound",
+      "messages": [
+        "Core thread recovered. End-state map is now visible.",
+        "Contingency channels exposed. We can route around their trap."
+      ]
+    },
+    {
+      "levelIndex": 3,
+      "trigger": "MissionComplete",
+      "messages": [
+        "Core sector clear. Rank {rank}, damage status {damage_status}, credits {credits}, route risk {route_risk}."
+      ]
+    },
+    {
+      "levelIndex": 4,
+      "trigger": "MissionStart",
+      "messages": [
+        "Final sector. Every move now is irreversible.",
+        "This run decides the ending. Stay in control."
+      ]
+    },
+    {
+      "levelIndex": 4,
+      "trigger": "IntelFound",
+      "messages": [
+        "Final proof secured. Taki's fallback protocol is exposed.",
+        "Intel chain complete. Execute on your timing."
+      ]
+    },
+    {
+      "levelIndex": 4,
+      "trigger": "MissionComplete",
+      "messages": [
+        "Final objective complete. Rank {rank}, credits {credits}, stealth {stealth_status}, route {route_label}."
+      ]
+    },
+    {
+      "levelIndex": 4,
+      "trigger": "StoryReveal",
+      "messages": [
+        "All strands are now visible. Final choice authority is yours."
+      ]
+    },
+    {
+      "levelIndex": -1,
+      "trigger": "Warning",
+      "messages": [
+        "Threat spike detected. Move now."
+      ]
+    }
+  ]
+}

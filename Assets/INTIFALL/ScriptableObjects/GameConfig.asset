@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8eae7a9ffcba6b43834123266e1fa87, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.GameConfig
+  playerMaxHP: 5
+  playerMaxFirstAid: 5
+  playerInvincibilityDuration: 0.5
+  maxStamina: 100
+  sprintStaminaDrain: 15
+  staminaRecovery: 10
+  walkSpeed: 4.5
+  sprintSpeed: 7
+  crouchSpeed: 1.5
+  rollSpeed: 6
+  ropeSpeed: 3
+  alertToCombatDelay: 5
+  combatExitDistance: 30
+  meleeRange: 2
+  meleeCastTime: 0.5
+  backstabRange: 2
+  backstabCastTime: 1
+  sleepDartRange: 15
+  enemyVisionDistance: 15
+  enemyVisionAngle: 60
+  enemyWalkSoundRadius: 5
+  enemyRunSoundRadius: 12
+  enemyCommRange: 30
+  maxToolSlots: 4
+  smokeBombRadius: 4
+  flashBangDuration: 2.5
+  empDisableDuration: 12
+  sleepDartSleepDuration: 20
+  startingCredits: 0
+  sRankBaseCredit: 500
+  aRankBaseCredit: 350
+  bRankBaseCredit: 200
+  zeroKillBonus: 150
+  noDamageBonus: 200
+  intelBonus: 50
+  enablePostProcessing: 1
+  enableDynamicLighting: 1
+  enableFootstepSounds: 1
+  targetFrameRate: 60
+  enemyDetectionSpeed: 1
+  enemyAttackDamage: 1
+  missionTimeLimit: 1

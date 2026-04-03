@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10daed8730b51c64d9f2f72d37d89300, type: 3}
+  m_Name: ToolData_SmokeBomb
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Tools.ToolData
+  toolName: SmokeBomb
+  toolNameCN: Smoke Bomb
+  category: 0
+  defaultSlot: 0
+  slotCost: 1
+  damage: 0
+  range: 8
+  cooldown: 14
+  duration: 7
+  maxAmmo: 3
+  energyCost: 12
+  upgradePrice: 120
+  upgradedVersion: {fileID: 0}
+  unlockedByDefault: 1
+  unlockPrice: 100
+  unlockLevel: 1
+  icon: {fileID: 0}
+  description: Creates a dense smoke zone to break vision.
+  runtimePrefab: {fileID: 6881670858841914446, guid: e083a174f366d5241bb36998ba4f48b3, type: 3}
+
+

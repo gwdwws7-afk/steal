@@ -1,5 +1,5 @@
+﻿using INTIFALL.System;
 using UnityEngine;
-using INTIFALL.System;
 
 namespace INTIFALL.Growth
 {
@@ -29,7 +29,7 @@ namespace INTIFALL.Growth
     public class BloodlineSystem : MonoBehaviour
     {
         [Header("Passive Configuration")]
-        [SerializeField] private int currentLevel = 0;
+        [SerializeField] private int currentLevel;
 
         [Header("Andes Breath (L01)")]
         [SerializeField] private float crouchNoiseReduction = 0.2f;
@@ -46,20 +46,42 @@ namespace INTIFALL.Growth
         [SerializeField] private float saqueosWarningTime = 5f;
 
         [Header("Reincarnation End (L05)")]
-        [SerializeField] private bool hasReincarnationBonus = false;
+        [SerializeField] private bool hasReincarnationBonus;
 
         private EBloodlinePassive[] _unlockedPassives;
         private int _maxLevel = 5;
 
         public int CurrentLevel => currentLevel;
-        public EBloodlinePassive[] UnlockedPassives => _unlockedPassives;
+
+        public EBloodlinePassive[] UnlockedPassives
+        {
+            get
+            {
+                EnsureInitialized();
+                return _unlockedPassives;
+            }
+        }
+
+        private void EnsureInitialized()
+        {
+            if (_unlockedPassives == null)
+                _unlockedPassives = new EBloodlinePassive[0];
+        }
+
+        private void Awake()
+        {
+            EnsureInitialized();
+        }
 
         public bool HasPassive(EBloodlinePassive passive)
         {
+            EnsureInitialized();
             for (int i = 0; i < _unlockedPassives.Length; i++)
             {
-                if (_unlockedPassives[i] == passive) return true;
+                if (_unlockedPassives[i] == passive)
+                    return true;
             }
+
             return false;
         }
 
@@ -98,22 +120,20 @@ namespace INTIFALL.Growth
             return hasReincarnationBonus && HasPassive(EBloodlinePassive.ReincarnationEnd);
         }
 
-        private void Awake()
-        {
-            _unlockedPassives = new EBloodlinePassive[0];
-        }
-
         public void UnlockPassiveForLevel(int level)
         {
-            if (level < 1 || level > _maxLevel) return;
-            if (level <= currentLevel) return;
+            EnsureInitialized();
+            if (level < 1 || level > _maxLevel)
+                return;
+            if (level <= currentLevel)
+                return;
 
             EBloodlinePassive passive = GetPassiveForLevel(level);
-            if (passive == EBloodlinePassive.None) return;
+            if (passive == EBloodlinePassive.None)
+                return;
 
-            System.Array.Resize(ref _unlockedPassives, _unlockedPassives.Length + 1);
+            global::System.Array.Resize(ref _unlockedPassives, _unlockedPassives.Length + 1);
             _unlockedPassives[_unlockedPassives.Length - 1] = passive;
-
             currentLevel = level;
 
             EventBus.Publish(new BloodlineUnlockedEvent
@@ -123,7 +143,7 @@ namespace INTIFALL.Growth
             });
         }
 
-        private EBloodlinePassive GetPassiveForLevel(int level)
+        private static EBloodlinePassive GetPassiveForLevel(int level)
         {
             return level switch
             {
@@ -138,7 +158,8 @@ namespace INTIFALL.Growth
 
         public void ApplyAndesBreathEffect()
         {
-            if (!HasPassive(EBloodlinePassive.AndesBreath)) return;
+            if (!HasPassive(EBloodlinePassive.AndesBreath))
+                return;
 
             EventBus.Publish(new BloodlineEffectAppliedEvent
             {
@@ -150,7 +171,8 @@ namespace INTIFALL.Growth
 
         public void ApplyPriestEyeEffect()
         {
-            if (!HasPassive(EBloodlinePassive.PriestEye)) return;
+            if (!HasPassive(EBloodlinePassive.PriestEye))
+                return;
 
             EventBus.Publish(new BloodlineEffectAppliedEvent
             {
@@ -162,7 +184,8 @@ namespace INTIFALL.Growth
 
         public void ApplyGoldenBloodEffect()
         {
-            if (!HasPassive(EBloodlinePassive.GoldenBlood)) return;
+            if (!HasPassive(EBloodlinePassive.GoldenBlood))
+                return;
 
             EventBus.Publish(new BloodlineEffectAppliedEvent
             {
@@ -174,7 +197,8 @@ namespace INTIFALL.Growth
 
         public void ApplyLeechSenseEffect()
         {
-            if (!HasPassive(EBloodlinePassive.LeechSense)) return;
+            if (!HasPassive(EBloodlinePassive.LeechSense))
+                return;
 
             EventBus.Publish(new BloodlineEffectAppliedEvent
             {
@@ -186,7 +210,8 @@ namespace INTIFALL.Growth
 
         public void ApplyReincarnationEndEffect()
         {
-            if (!HasPassive(EBloodlinePassive.ReincarnationEnd)) return;
+            if (!HasPassive(EBloodlinePassive.ReincarnationEnd))
+                return;
 
             EventBus.Publish(new BloodlineEffectAppliedEvent
             {
@@ -198,6 +223,7 @@ namespace INTIFALL.Growth
 
         public void ResetBloodline()
         {
+            EnsureInitialized();
             currentLevel = 0;
             _unlockedPassives = new EBloodlinePassive[0];
             hasReincarnationBonus = false;
@@ -207,12 +233,12 @@ namespace INTIFALL.Growth
         {
             return passive switch
             {
-                EBloodlinePassive.AndesBreath => "安第斯之息",
-                EBloodlinePassive.PriestEye => "祭司之眼",
-                EBloodlinePassive.GoldenBlood => "黄金之血",
-                EBloodlinePassive.LeechSense => "蚂蟥感知",
-                EBloodlinePassive.ReincarnationEnd => "轮回终章",
-                _ => ""
+                EBloodlinePassive.AndesBreath => "Andes Breath",
+                EBloodlinePassive.PriestEye => "Priest Eye",
+                EBloodlinePassive.GoldenBlood => "Golden Blood",
+                EBloodlinePassive.LeechSense => "Leech Sense",
+                EBloodlinePassive.ReincarnationEnd => "Reincarnation End",
+                _ => string.Empty
             };
         }
 
@@ -220,12 +246,12 @@ namespace INTIFALL.Growth
         {
             return passive switch
             {
-                EBloodlinePassive.AndesBreath => "匍匐/绳技噪音 -20%",
-                EBloodlinePassive.PriestEye => "终端破解速度 +30%",
-                EBloodlinePassive.GoldenBlood => "EMP 禁用时间 +4s",
-                EBloodlinePassive.LeechSense => "Saqueos 20m 内提前 5s 预警",
-                EBloodlinePassive.ReincarnationEnd => "终局三选一产生额外效果",
-                _ => ""
+                EBloodlinePassive.AndesBreath => "Crouch and rope noise reduced by 20%.",
+                EBloodlinePassive.PriestEye => "Terminal breach speed increased by 30%.",
+                EBloodlinePassive.GoldenBlood => "EMP disable duration increased by 4 seconds.",
+                EBloodlinePassive.LeechSense => "Saqueos warning triggered 5 seconds earlier within 20m.",
+                EBloodlinePassive.ReincarnationEnd => "Final choice grants an additional ending-side effect.",
+                _ => string.Empty
             };
         }
     }

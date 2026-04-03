@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using INTIFALL.System;
 
@@ -33,6 +34,9 @@ namespace INTIFALL.Narrative
         [Header("Bloodline Resonance")]
         [SerializeField] private bool _hasExperiencedResonance = false;
 
+        private readonly HashSet<string> _collectedIntelKeys = new();
+        private readonly HashSet<string> _readTerminalKeys = new();
+
         private static NarrativeManager _instance;
         public static NarrativeManager Instance => _instance;
 
@@ -52,14 +56,14 @@ namespace INTIFALL.Narrative
 
         public void CollectIntel(string intelId, int levelIndex)
         {
-            int intelIndex = GetIntelIndex(intelId, levelIndex);
-            if (intelIndex < 0 || intelIndex >= _qhipuCollected.Length)
+            string key = BuildProgressKey(intelId, levelIndex);
+            if (string.IsNullOrEmpty(key))
                 return;
 
-            if (_qhipuCollected[intelIndex])
+            if (_collectedIntelKeys.Contains(key))
                 return;
 
-            _qhipuCollected[intelIndex] = true;
+            _collectedIntelKeys.Add(key);
             _intelCollected++;
 
             EventBus.Publish(new NarrativeTriggeredEvent
@@ -72,14 +76,14 @@ namespace INTIFALL.Narrative
 
         public void ReadTerminal(string terminalId, int levelIndex)
         {
-            int terminalIndex = GetTerminalIndex(terminalId, levelIndex);
-            if (terminalIndex < 0 || terminalIndex >= _terminalsRead.Length)
+            string key = BuildProgressKey(terminalId, levelIndex);
+            if (string.IsNullOrEmpty(key))
                 return;
 
-            if (_terminalsRead[terminalIndex])
+            if (_readTerminalKeys.Contains(key))
                 return;
 
-            _terminalsRead[terminalIndex] = true;
+            _readTerminalKeys.Add(key);
 
             EventBus.Publish(new NarrativeTriggeredEvent
             {
@@ -105,72 +109,46 @@ namespace INTIFALL.Narrative
 
         public bool IsQhipuCollected(string qhipuId, int levelIndex)
         {
-            int index = GetIntelIndex(qhipuId, levelIndex);
-            if (index < 0 || index >= _qhipuCollected.Length)
-                return false;
-            return _qhipuCollected[index];
+            return _collectedIntelKeys.Contains(BuildProgressKey(qhipuId, levelIndex));
         }
 
         public bool IsTerminalRead(string terminalId, int levelIndex)
         {
-            int index = GetTerminalIndex(terminalId, levelIndex);
-            if (index < 0 || index >= _terminalsRead.Length)
-                return false;
-            return _terminalsRead[index];
+            return _readTerminalKeys.Contains(BuildProgressKey(terminalId, levelIndex));
         }
 
         public int GetIntelCollectedForLevel(int levelIndex)
         {
-            int start = levelIndex * _totalIntelPerLevel;
-            int end = Mathf.Min(start + _totalIntelPerLevel, _qhipuCollected.Length);
-
             int count = 0;
-            for (int i = start; i < end; i++)
+            string prefix = BuildLevelPrefix(levelIndex);
+            foreach (string key in _collectedIntelKeys)
             {
-                if (_qhipuCollected[i])
+                if (key.StartsWith(prefix, global::System.StringComparison.Ordinal))
                     count++;
             }
+
             return count;
         }
 
         public int GetTerminalsReadForLevel(int levelIndex)
         {
-            int start = levelIndex * 5;
-            int end = Mathf.Min(start + 5, _terminalsRead.Length);
-
             int count = 0;
-            for (int i = start; i < end; i++)
+            string prefix = BuildLevelPrefix(levelIndex);
+            foreach (string key in _readTerminalKeys)
             {
-                if (_terminalsRead[i])
+                if (key.StartsWith(prefix, global::System.StringComparison.Ordinal))
                     count++;
             }
+
             return count;
-        }
-
-        private int GetIntelIndex(string intelId, int levelIndex)
-        {
-            return levelIndex * _totalIntelPerLevel + GetIntelIdHash(intelId);
-        }
-
-        private int GetTerminalIndex(string terminalId, int levelIndex)
-        {
-            return levelIndex * 5 + GetTerminalIdHash(terminalId);
-        }
-
-        private int GetIntelIdHash(string intelId)
-        {
-            return Mathf.Abs(intelId.GetHashCode()) % _totalIntelPerLevel;
-        }
-
-        private int GetTerminalIdHash(string terminalId)
-        {
-            return Mathf.Abs(terminalId.GetHashCode()) % 5;
         }
 
         public void ResetNarrativeProgress()
         {
             _intelCollected = 0;
             _hasExperiencedResonance = false;
+            _collectedIntelKeys.Clear();
+            _readTerminalKeys.Clear();
 
             for (int i = 0; i < _qhipuCollected.Length; i++)
                 _qhipuCollected[i] = false;
@@ -181,11 +159,41 @@ namespace INTIFALL.Narrative
 
         public void ResetLevelNarrative(int levelIndex)
         {
-            int start = levelIndex * _totalIntelPerLevel;
-            int end = Mathf.Min(start + _totalIntelPerLevel, _qhipuCollected.Length);
+            string prefix = BuildLevelPrefix(levelIndex);
+            RemoveProgressByPrefix(_collectedIntelKeys, prefix);
+            RemoveProgressByPrefix(_readTerminalKeys, prefix);
 
-            for (int i = start; i < end; i++)
-                _qhipuCollected[i] = false;
+            _intelCollected = _collectedIntelKeys.Count;
+        }
+
+        private static string BuildProgressKey(string id, int levelIndex)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return string.Empty;
+
+            int safeLevel = Mathf.Max(0, levelIndex);
+            return $"{safeLevel}:{id.Trim()}";
+        }
+
+        private static string BuildLevelPrefix(int levelIndex)
+        {
+            int safeLevel = Mathf.Max(0, levelIndex);
+            return $"{safeLevel}:";
+        }
+
+        private static void RemoveProgressByPrefix(HashSet<string> set, string prefix)
+        {
+            if (set == null || set.Count == 0 || string.IsNullOrEmpty(prefix))
+                return;
+
+            string[] snapshot = new string[set.Count];
+            set.CopyTo(snapshot);
+            for (int i = 0; i < snapshot.Length; i++)
+            {
+                string key = snapshot[i];
+                if (key.StartsWith(prefix, global::System.StringComparison.Ordinal))
+                    set.Remove(key);
+            }
         }
     }
 }

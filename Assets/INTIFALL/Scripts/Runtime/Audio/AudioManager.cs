@@ -28,7 +28,7 @@ namespace INTIFALL.Audio
         [Header("Pool Settings")]
         [SerializeField] private int sfxPoolSize = 8;
 
-        private System.Collections.Generic.Queue<AudioSource> _sfxPool;
+        private global::System.Collections.Generic.Queue<AudioSource> _sfxPool;
 
         public float MasterVolume => masterVolume;
         public float SFXVolume => sfxVolume;
@@ -43,6 +43,8 @@ namespace INTIFALL.Audio
                 return;
             }
             Instance = this;
+            if (transform.parent != null)
+                transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
 
             InitializeSFXPool();
@@ -50,7 +52,7 @@ namespace INTIFALL.Audio
 
         private void InitializeSFXPool()
         {
-            _sfxPool = new System.Collections.Generic.Queue<AudioSource>();
+            _sfxPool = new global::System.Collections.Generic.Queue<AudioSource>();
             for (int i = 0; i < sfxPoolSize; i++)
             {
                 AudioSource source = gameObject.AddComponent<AudioSource>();

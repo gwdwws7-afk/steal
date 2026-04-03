@@ -12,12 +12,14 @@ namespace INTIFALL.AI
         [Header("Settings")]
         [SerializeField] private bool loop = true;
         [SerializeField] private float arrivalThreshold = 1f;
+        [SerializeField] private string routeId = "";
 
         private int _currentIndex;
         private float _waitTimer;
         private bool _isWaiting;
 
         public int CurrentIndex => _currentIndex;
+        public string RouteId => routeId;
 
         public Vector3 GetCurrentWaypoint()
         {
@@ -110,6 +112,11 @@ namespace INTIFALL.AI
             }
         }
 
+        public void SetRouteId(string id)
+        {
+            routeId = id;
+        }
+
         public int WaypointCount => waypoints.Count;
 
         private void OnDrawGizmosSelected()
@@ -133,7 +140,9 @@ namespace INTIFALL.AI
                     Gizmos.DrawLine(pos, waypoints[nextIndex].position);
                 }
 
+#if UNITY_EDITOR
                 UnityEditor.Handles.Label(pos, $"W{i}");
+#endif
             }
         }
     }

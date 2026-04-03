@@ -1,6 +1,6 @@
-using UnityEngine;
 using INTIFALL.Economy;
 using INTIFALL.System;
+using UnityEngine;
 
 namespace INTIFALL.Growth
 {
@@ -23,56 +23,115 @@ namespace INTIFALL.Growth
         [Header("Mission Evaluation")]
         [SerializeField] private bool zeroKill = true;
         [SerializeField] private bool noDamage = true;
-        [SerializeField] private int secondaryObjectivesCompleted = 0;
-        [SerializeField] private int intelCollected = 0;
-        [SerializeField] private float timeRemaining = 0f;
+        [SerializeField] private int secondaryObjectivesCompleted;
+        [SerializeField] private int intelCollected;
+        [SerializeField] private float timeRemaining;
 
         private int _currentLevel = 1;
 
-        public void SetMissionStats(bool zeroKill, bool noDamage, int secondaryObjectives, int intel, float timeLeft)
+        public void SetMissionStats(bool zeroKillValue, bool noDamageValue, int secondaryObjectives, int intel, float timeLeft)
         {
-            this.zeroKill = zeroKill;
-            this.noDamage = noDamage;
-            this.secondaryObjectivesCompleted = secondaryObjectives;
-            this.intelCollected = intel;
-            this.timeRemaining = timeLeft;
+            zeroKill = zeroKillValue;
+            noDamage = noDamageValue;
+            secondaryObjectivesCompleted = secondaryObjectives;
+            intelCollected = intel;
+            timeRemaining = timeLeft;
         }
 
         public int CalculateRank()
         {
-            if (zeroKill && noDamage && secondaryObjectivesCompleted >= 2 && intelCollected >= 3)
+            return EvaluateRankScore(
+                zeroKill,
+                noDamage,
+                secondaryObjectivesCompleted,
+                intelCollected,
+                timeRemaining);
+        }
+
+        public static int EvaluateRankScore(
+            bool zeroKillValue,
+            bool noDamageValue,
+            int secondaryObjectivesValue,
+            int intelCollectedValue,
+            float timeRemainingValue)
+        {
+            int secondary = Mathf.Max(0, secondaryObjectivesValue);
+            int intel = Mathf.Max(0, intelCollectedValue);
+            float time = Mathf.Max(0f, timeRemainingValue);
+
+            if (zeroKillValue && noDamageValue && secondary >= 2 && intel >= 3)
                 return 5;
-            if (noDamage && secondaryObjectivesCompleted >= 1 && intelCollected >= 2)
+
+            if (noDamageValue && secondary >= 1 && intel >= 2)
                 return 4;
-            if (!zeroKill && secondaryObjectivesCompleted >= 1)
+
+            if ((secondary >= 1 && (time > 0f || intel >= 1)) || (zeroKillValue && intel >= 2))
                 return 3;
-            if (secondaryObjectivesCompleted >= 1)
+
+            if (secondary >= 1 || intel >= 1)
                 return 2;
+
             return 1;
+        }
+
+        public static int EvaluateCredits(
+            int rankScore,
+            bool zeroKillValue,
+            bool noDamageValue,
+            int secondaryObjectivesValue,
+            int intelCollectedValue,
+            float timeRemainingValue)
+        {
+            int baseCredits = rankScore switch
+            {
+                5 => 820,
+                4 => 560,
+                3 => 340,
+                2 => 185,
+                _ => 95
+            };
+
+            int total = baseCredits;
+            if (zeroKillValue) total += 140;
+            if (noDamageValue) total += 160;
+
+            if (timeRemainingValue > 180f)
+                total += 130;
+            else if (timeRemainingValue > 60f)
+                total += 70;
+
+            total += Mathf.Clamp(secondaryObjectivesValue, 0, 3) * 55;
+            total += Mathf.Clamp(intelCollectedValue, 0, 5) * 45;
+            return total;
+        }
+
+        public static string GetRankNameForScore(int rankScore)
+        {
+            return rankScore switch
+            {
+                5 => "S",
+                4 => "A",
+                3 => "B",
+                2 => "C",
+                _ => "D"
+            };
         }
 
         public void CompleteLevel()
         {
             int rank = CalculateRank();
-
-            int baseCredits = rank switch
-            {
-                5 => 500,
-                4 => 350,
-                3 => 200,
-                2 => 100,
-                _ => 50
-            };
-
-            int totalCredits = CalculateTotalCredits(baseCredits);
+            int totalCredits = EvaluateCredits(
+                rank,
+                zeroKill,
+                noDamage,
+                secondaryObjectivesCompleted,
+                intelCollected,
+                timeRemaining);
 
             if (creditSystem != null)
-            {
                 creditSystem.EarnCredits(totalCredits, $"Level_{_currentLevel}");
-            }
 
             progressionTree?.CompleteLevel(_currentLevel);
-
             bloodlineSystem?.UnlockPassiveForLevel(_currentLevel);
 
             EventBus.Publish(new LevelCompleteEvent
@@ -81,34 +140,23 @@ namespace INTIFALL.Growth
                 rankScore = rank,
                 creditsEarned = totalCredits,
                 toolsUnlocked = GetToolsUnlockedAtLevel(_currentLevel),
-                passiveUnlocked = bloodlineSystem != null ? bloodlineSystem.GetPassiveName((EBloodlinePassive)_currentLevel) : ""
+                passiveUnlocked = bloodlineSystem != null
+                    ? bloodlineSystem.GetPassiveName((EBloodlinePassive)_currentLevel)
+                    : string.Empty
             });
 
             _currentLevel++;
         }
 
-        private int CalculateTotalCredits(int baseCredits)
-        {
-            int total = baseCredits;
-
-            if (zeroKill) total += 150;
-            if (noDamage) total += 200;
-            if (timeRemaining > 60) total += 100;
-            total += secondaryObjectivesCompleted * 50;
-            total += intelCollected * 50;
-
-            return total;
-        }
-
-        private string[] GetToolsUnlockedAtLevel(int level)
+        private static string[] GetToolsUnlockedAtLevel(int level)
         {
             return level switch
             {
-                1 => new[] { "烟雾弹", "闪光弹", "声音诱饵", "睡眠弹", "绳技" },
-                2 => new[] { "定时噪音", "墙壁破坏" },
-                3 => new[] { "EMP", "无人机" },
-                4 => new[] { "烟雾弹升级", "闪光弹升级", "声音诱饵升级" },
-                5 => new[] { "所有工具满配" },
+                1 => new[] { "SmokeBomb", "FlashBang", "SoundBait", "SleepDart", "Rope" },
+                2 => new[] { "TimedNoise", "WallBreaker" },
+                3 => new[] { "EMP", "DroneInterference" },
+                4 => new[] { "SmokeBomb_Mk2", "FlashBang_Mk2", "SoundBait_Mk2" },
+                5 => new[] { "AllToolsMaxed" },
                 _ => new string[0]
             };
         }
@@ -125,25 +173,18 @@ namespace INTIFALL.Growth
 
         public string GetRankName(int rank)
         {
-            return rank switch
-            {
-                5 => "S",
-                4 => "A",
-                3 => "B",
-                2 => "C",
-                _ => "D"
-            };
+            return GetRankNameForScore(rank);
         }
 
         public string GetRankDescription(int rank)
         {
             return rank switch
             {
-                5 => "零击杀 + 未被发现 + 次要目标全完成",
-                4 => "未被发现 + 次要目标完成",
-                3 => "未触发全面警报",
-                2 => "触发全面警报但完成",
-                _ => "任务完成"
+                5 => "Zero-kill, no-damage, with full objective control.",
+                4 => "Clean execution with strong objective completion.",
+                3 => "Stable completion with partial objective coverage.",
+                2 => "Mission completed under pressure.",
+                _ => "Mission completed."
             };
         }
     }

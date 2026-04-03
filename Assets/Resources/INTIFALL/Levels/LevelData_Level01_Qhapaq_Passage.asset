@@ -1,0 +1,59 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbdd831568b48bf43b6e80f0b4af0b1a, type: 3}
+  m_Name: LevelData_Level01_Qhapaq_Passage
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.LevelData
+  levelName: Level01_Qhapaq_Passage
+  levelDisplayName: L01 Golden Rain Warehouse
+  levelIndex: 0
+  sceneName: Level01_Qhapaq_Passage
+
+  plannedMainRoutes: 2
+  plannedStealthRoutes: 1
+  designedCompletionMinutes: 12
+  completionWindowMinMinutes: 11
+  completionWindowMaxMinutes: 14
+  patrolPressureTier: 1
+  enemyDensityTargetPerMinute: 0.5
+  flowNotes: Two frontal routes plus one vent bypass.
+  infiltrationMinutes: 4
+  objectiveMinutes: 5
+  extractionMinutes: 3
+  infiltrationEnemyBudget: 2
+  objectiveEnemyBudget: 3
+  extractionEnemyBudget: 1
+  encounterNotes: Outer cargo perimeter, central storage sweep, extraction yard pinch.
+  standardTime: 720
+  timeLimit: 900
+  totalEnemyCount: 6
+  normalEnemyCount: 6
+  reinforcedEnemyCount: 0
+  heavyEnemyCount: 0
+  quipucamayocCount: 0
+  saqueosCount: 0
+  qhipuFragmentCount: 3
+  terminalCount: 2
+  supplyPointCount: 5
+  baseAlertDuration: 4.5
+  searchDuration: 8
+  fullAlertDuration: 26
+  hasVentSystem: 1
+  hasHangingPoints: 1
+  hasBreakableWalls: 0
+  hasElectronicDoors: 0
+  hasSurveillanceCameras: 0
+  baseCreditReward: 220
+  secondaryObjectiveBonus: 60
+  zeroKillBonus: 160
+  noDamageBonus: 180
+
+

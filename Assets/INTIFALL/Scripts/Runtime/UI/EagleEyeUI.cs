@@ -1,3 +1,4 @@
+using INTIFALL.System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,6 +29,7 @@ namespace INTIFALL.UI
         private GameObject _activePopup;
 
         public int CurrentIntel => _currentIntel;
+        public int TotalIntelTarget => totalIntelPerLevel;
 
         private void Start()
         {
@@ -36,16 +38,31 @@ namespace INTIFALL.UI
 
         public void CollectIntel(int intelIndex)
         {
-            if (intelIndex < 0 || intelIndex >= totalIntelPerLevel) return;
+            if (intelIndex < 0 || intelIndex >= totalIntelPerLevel)
+                return;
 
             _currentIntel = Mathf.Min(_currentIntel + 1, totalIntelPerLevel);
             UpdateIntelDisplay();
-            ShowIntelPopup($"情报 {intelIndex + 1}");
+
+            string intelLabel = string.Format(
+                LocalizationService.Get(
+                    "intel.item",
+                    fallbackEnglish: "Intel {0}",
+                    fallbackChinese: string.Empty),
+                intelIndex + 1);
+            ShowIntelPopup(intelLabel);
         }
 
         public void SetIntelCount(int count)
         {
             _currentIntel = Mathf.Clamp(count, 0, totalIntelPerLevel);
+            UpdateIntelDisplay();
+        }
+
+        public void SetIntelTarget(int total)
+        {
+            totalIntelPerLevel = Mathf.Max(0, total);
+            _currentIntel = Mathf.Clamp(_currentIntel, 0, totalIntelPerLevel);
             UpdateIntelDisplay();
         }
 
@@ -56,10 +73,10 @@ namespace INTIFALL.UI
 
             for (int i = 0; i < intelIcons.Length; i++)
             {
-                if (intelIcons[i] != null)
-                {
-                    intelIcons[i].color = i < _currentIntel ? Color.yellow : Color.gray;
-                }
+                if (intelIcons[i] == null)
+                    continue;
+
+                intelIcons[i].color = i < _currentIntel ? Color.yellow : Color.gray;
             }
         }
 
@@ -68,15 +85,26 @@ namespace INTIFALL.UI
             if (_activePopup != null)
                 Destroy(_activePopup);
 
-            if (intelPopupPrefab != null)
-            {
-                _activePopup = Instantiate(intelPopupPrefab, transform);
-                var popupText = _activePopup.GetComponentInChildren<Text>();
-                if (popupText != null)
-                    popupText.text = $"获得情报: {intelName}";
+            if (intelPopupPrefab == null)
+                return;
 
-                Destroy(_activePopup, popupDuration);
+            _activePopup = Instantiate(intelPopupPrefab, transform);
+            Text popupText = _activePopup.GetComponentInChildren<Text>();
+            if (popupText != null)
+            {
+                string template = LocalizationService.Get(
+                    "intel.popup.acquired",
+                    fallbackEnglish: "Intel acquired: {0}",
+                    fallbackChinese: string.Empty);
+                popupText.text = string.Format(template, intelName);
             }
+
+            Destroy(_activePopup, popupDuration);
+        }
+
+        public void ShowIntelPickup(string intelName)
+        {
+            ShowIntelPopup(intelName);
         }
 
         public void SetPrimaryObjective(string objective)
@@ -94,9 +122,7 @@ namespace INTIFALL.UI
         public void UpdateMinimap(Vector3 playerPosition, float playerRotation)
         {
             if (playerOnMinimap != null)
-            {
-                playerOnMinimap.localRotation = Quaternion.Euler(0, 0, -playerRotation);
-            }
+                playerOnMinimap.localRotation = Quaternion.Euler(0f, 0f, -playerRotation);
         }
 
         public void ResetIntel()

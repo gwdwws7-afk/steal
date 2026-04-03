@@ -10,7 +10,7 @@ namespace INTIFALL.Data
         VisualClue
     }
 
-    [System.Serializable]
+    [global::System.Serializable]
     public class IntelSpawnPoint
     {
         public string intelId;
@@ -22,7 +22,7 @@ namespace INTIFALL.Data
         public string[] triggerEvents;
     }
 
-    [System.Serializable]
+    [global::System.Serializable]
     public class SupplyPointData
     {
         public string supplyId;
@@ -32,13 +32,19 @@ namespace INTIFALL.Data
         public float cooldownDuration = 30f;
     }
 
-    [System.Serializable]
+    [global::System.Serializable]
     public class ExitPointData
     {
         public string exitId;
         public Vector3 position;
         public bool requiresAllIntel = false;
         public bool isMainExit = true;
+        public string routeId = "main";
+        public string routeLabel = "Main Extraction";
+        [Range(0, 3)] public int routeRiskTier = 0;
+        [Range(0.5f, 2f)] public float creditMultiplier = 1f;
+        public int secondaryObjectiveBonus = 0;
+        public int requiredIntelCount = -1;
     }
 
     [CreateAssetMenu(fileName = "IntelSpawnData", menuName = "INTIFALL/Intel Spawn Data")]
@@ -77,7 +83,7 @@ namespace INTIFALL.Data
         {
             if (intelPoints == null) return new IntelSpawnPoint[0];
 
-            System.Collections.Generic.List<IntelSpawnPoint> result = new();
+            global::System.Collections.Generic.List<IntelSpawnPoint> result = new();
             foreach (var intel in intelPoints)
             {
                 if (intel.intelType == type)

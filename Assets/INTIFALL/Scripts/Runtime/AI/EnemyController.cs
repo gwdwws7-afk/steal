@@ -37,6 +37,21 @@ namespace INTIFALL.AI
         [SerializeField] private PerceptionModule perception;
         [SerializeField] private Transform eyes;
 
+        [Header("Detection")]
+        [SerializeField] private float detectionPulseInterval = 0.75f;
+        [SerializeField] private float searchingPulseMultiplier = 0.75f;
+        [SerializeField] private float alertedPulseMultiplier = 0.5f;
+
+        [Header("Squad Coordination")]
+        [SerializeField] private float squadBroadcastRange = 26f;
+        [SerializeField] private float squadBroadcastCooldown = 1.2f;
+        [SerializeField] private float searchRadius = 6f;
+        [SerializeField] private int searchSectorCount = 6;
+        [SerializeField] private int maxSearchSteps = 6;
+        [SerializeField] private float searchPointTolerance = 1.1f;
+        [SerializeField] private float searchPointHoldDuration = 0.45f;
+        [SerializeField] private float searchRetargetInterval = 0.6f;
+
         private EnemyStateMachine _stateMachine;
         private CharacterController _cc;
         private Vector3 _moveTarget;
@@ -45,10 +60,23 @@ namespace INTIFALL.AI
         private int _currentHp;
         private bool _isDead;
         private float _currentSpeed;
+        private bool _wasDetectingTarget;
+        private float _lastDetectionPulseTime;
+        private int _currentDetectionWaveId;
+        private float _lastSquadBroadcastTime;
+        private int _activeSearchWaveId = -1;
+        private int _searchStep;
+        private Vector3 _searchTarget;
+        private bool _hasSearchTarget;
+        private float _searchHoldUntil;
+        private float _lastSearchRetargetTime;
 
         public EEnemyType EnemyType => enemyType;
         public EnemyStateMachine StateMachine => _stateMachine;
         public bool IsDead => _isDead;
+        public float DetectionPulseInterval => detectionPulseInterval;
+        public float SearchingPulseMultiplier => searchingPulseMultiplier;
+        public float AlertedPulseMultiplier => alertedPulseMultiplier;
 
         private void Awake()
         {
@@ -56,6 +84,8 @@ namespace INTIFALL.AI
             _cc = GetComponent<CharacterController>();
             _currentHp = hp;
             _currentSpeed = walkSpeed;
+            _lastDetectionPulseTime = -999f;
+            _lastSquadBroadcastTime = -999f;
         }
 
         private void Start()
@@ -64,11 +94,111 @@ namespace INTIFALL.AI
                 eyes = transform;
         }
 
+        private void OnEnable()
+        {
+            EnemySquadCoordinator.Register(this);
+        }
+
+        private void OnDisable()
+        {
+            EnemySquadCoordinator.Unregister(this);
+        }
+
+        private void OnDestroy()
+        {
+            EnemySquadCoordinator.Unregister(this);
+        }
+
         private void Update()
         {
             if (_isDead) return;
 
+            EvaluatePerception();
             UpdateBehavior();
+        }
+
+        private void EvaluatePerception()
+        {
+            if (perception == null || _stateMachine == null) return;
+
+            bool canSee = perception.CanSeeTarget();
+            bool canHear = !canSee && perception.CanHearCurrentTarget();
+            bool detecting = canSee || canHear;
+            float pulseInterval = GetDetectionPulseInterval();
+
+            if (detecting)
+            {
+                bool shouldPulse = !_wasDetectingTarget || Time.time - _lastDetectionPulseTime >= pulseInterval;
+                if (!_wasDetectingTarget)
+                    _currentDetectionWaveId = EnemySquadCoordinator.NextWaveId();
+
+                if (shouldPulse)
+                {
+                    Vector3 targetPosition = perception.GetTargetPosition();
+                    _stateMachine.OnPlayerDetected(targetPosition);
+                    BroadcastSquadAlert(targetPosition, canSee, _currentDetectionWaveId);
+                    _lastDetectionPulseTime = Time.time;
+                }
+
+                _wasDetectingTarget = true;
+                return;
+            }
+
+            if (_wasDetectingTarget)
+            {
+                _stateMachine.OnPlayerLost();
+                _currentDetectionWaveId = 0;
+            }
+
+            _wasDetectingTarget = false;
+        }
+
+        private void BroadcastSquadAlert(Vector3 alertPosition, bool highPriority, int waveId, bool bypassCooldown = false)
+        {
+            if (waveId <= 0 || _isDead)
+                return;
+
+            float cooldown = Mathf.Max(0.1f, squadBroadcastCooldown);
+            if (!bypassCooldown && Time.time - _lastSquadBroadcastTime < cooldown)
+                return;
+
+            EnemySquadCoordinator.BroadcastAlert(
+                this,
+                alertPosition,
+                highPriority,
+                ResolveBroadcastRange(),
+                waveId);
+
+            _lastSquadBroadcastTime = Time.time;
+        }
+
+        private float ResolveBroadcastRange()
+        {
+            float configuredRange = Mathf.Max(1f, squadBroadcastRange);
+            if (perception == null)
+                return configuredRange;
+
+            return Mathf.Max(configuredRange, perception.CommunicationRange);
+        }
+
+        private float GetDetectionPulseInterval()
+        {
+            if (_stateMachine == null)
+                return Mathf.Max(0.1f, detectionPulseInterval);
+
+            float multiplier = 1f;
+            switch (_stateMachine.CurrentState)
+            {
+                case EEnemyState.Searching:
+                    multiplier = searchingPulseMultiplier;
+                    break;
+                case EEnemyState.Alert:
+                case EEnemyState.FullAlert:
+                    multiplier = alertedPulseMultiplier;
+                    break;
+            }
+
+            return Mathf.Max(0.1f, detectionPulseInterval * Mathf.Max(0.1f, multiplier));
         }
 
         private void UpdateBehavior()
@@ -110,15 +240,29 @@ namespace INTIFALL.AI
         private void HandleSearching()
         {
             _currentSpeed = walkSpeed;
-            MoveTo(_stateMachine.LastKnownPlayerPos);
-            LookAt(_stateMachine.LastKnownPlayerPos);
+            RefreshSearchPlan(false);
+            Vector3 target = _hasSearchTarget ? _searchTarget : _stateMachine.LastKnownPlayerPos;
+            float distanceToTarget = Vector3.Distance(transform.position, target);
+
+            if (distanceToTarget <= Mathf.Max(0.25f, searchPointTolerance))
+            {
+                LookAt(target);
+                if (Time.time >= _searchHoldUntil)
+                {
+                    AdvanceSearchStep();
+                }
+                return;
+            }
+
+            MoveTo(target);
+            LookAt(target);
         }
 
         private void HandleAlert()
         {
             _currentSpeed = runSpeed;
 
-            if (perception.CanSeeTarget())
+            if (perception != null && perception.CanSeeTarget())
             {
                 _moveTarget = perception.GetTargetPosition();
                 MoveTo(_moveTarget);
@@ -139,24 +283,82 @@ namespace INTIFALL.AI
         {
             _currentSpeed = runSpeed;
 
-            if (perception.CanSeeTarget())
+            if (perception != null && perception.CanSeeTarget())
             {
                 _moveTarget = perception.GetTargetPosition();
                 MoveTo(_moveTarget);
                 LookAt(_moveTarget);
 
                 TryAttack();
-
-                EventBus.Publish(new AlertStateChangedEvent
-                {
-                    enemyId = gameObject.GetInstanceID(),
-                    newState = EAlertState.FullAlert
-                });
             }
             else
             {
-                _stateMachine.TransitionTo(EEnemyState.Searching);
+                Vector3 fallbackTarget = _stateMachine != null
+                    ? _stateMachine.LastKnownPlayerPos
+                    : transform.position;
+                MoveTo(fallbackTarget);
+                LookAt(fallbackTarget);
             }
+        }
+
+        private void RefreshSearchPlan(bool forceRetarget)
+        {
+            if (_stateMachine == null)
+                return;
+
+            int waveId = Mathf.Max(1, _stateMachine.SearchWaveId);
+            if (waveId != _activeSearchWaveId)
+            {
+                _activeSearchWaveId = waveId;
+                _searchStep = 0;
+                forceRetarget = true;
+            }
+
+            float retargetInterval = Mathf.Max(0.1f, searchRetargetInterval);
+            if (!forceRetarget &&
+                _hasSearchTarget &&
+                Time.time - _lastSearchRetargetTime < retargetInterval)
+            {
+                return;
+            }
+
+            Vector3 anchor = _stateMachine.SearchAnchor;
+            if (anchor == Vector3.zero)
+                anchor = _stateMachine.LastKnownPlayerPos;
+            if (anchor == Vector3.zero)
+                anchor = transform.position;
+
+            int steps = Mathf.Max(1, maxSearchSteps);
+            int boundedStep = Mathf.Clamp(_searchStep, 0, steps - 1);
+            int seed = gameObject.GetInstanceID() + (_activeSearchWaveId * 17);
+
+            _searchTarget = EnemySquadCoordinator.ComputeSearchPoint(
+                anchor,
+                seed,
+                Mathf.Max(3, searchSectorCount),
+                Mathf.Max(1f, searchRadius),
+                boundedStep);
+
+            _hasSearchTarget = true;
+            _searchHoldUntil = Time.time + Mathf.Max(0f, searchPointHoldDuration);
+            _lastSearchRetargetTime = Time.time;
+        }
+
+        private void AdvanceSearchStep()
+        {
+            int steps = Mathf.Max(1, maxSearchSteps);
+            _searchStep = (_searchStep + 1) % steps;
+            RefreshSearchPlan(true);
+        }
+
+        private void ClearSearchPlan()
+        {
+            _activeSearchWaveId = -1;
+            _searchStep = 0;
+            _hasSearchTarget = false;
+            _searchTarget = Vector3.zero;
+            _searchHoldUntil = 0f;
+            _lastSearchRetargetTime = -999f;
         }
 
         private void Patrol()
@@ -178,9 +380,15 @@ namespace INTIFALL.AI
 
         private void MoveTo(Vector3 target)
         {
-            Vector3 direction = (target - transform.position).normalized;
-            direction.y = 0;
+            if (_cc == null || !_cc.enabled)
+                return;
 
+            Vector3 direction = target - transform.position;
+            direction.y = 0;
+            if (direction.sqrMagnitude <= 0.01f)
+                return;
+
+            direction.Normalize();
             _cc.Move(direction * _currentSpeed * Time.deltaTime);
         }
 
@@ -199,7 +407,7 @@ namespace INTIFALL.AI
         private void TryAttack()
         {
             if (Time.time - _lastAttackTime < attackCooldown) return;
-            if (!perception.CanSeeTarget()) return;
+            if (perception == null || !perception.CanSeeTarget()) return;
 
             _lastAttackTime = Time.time;
             Attack();
@@ -211,7 +419,7 @@ namespace INTIFALL.AI
             {
                 enemyId = gameObject.GetInstanceID(),
                 damage = damage,
-                targetPosition = perception.GetTargetPosition()
+                targetPosition = perception != null ? perception.GetTargetPosition() : _stateMachine.LastKnownPlayerPos
             });
         }
 
@@ -231,6 +439,7 @@ namespace INTIFALL.AI
         {
             _isDead = true;
             _cc.enabled = false;
+            EnemySquadCoordinator.Unregister(this);
 
             EventBus.Publish(new EnemyKilledEvent
             {
@@ -239,11 +448,37 @@ namespace INTIFALL.AI
             });
         }
 
-        public void OnEnterUnaware() { }
-        public void OnEnterSuspicious(Vector3 lookTarget) { _lookTarget = lookTarget; }
-        public void OnEnterSearching(Vector3 searchPos) { _moveTarget = searchPos; }
-        public void OnEnterAlert() { }
-        public void OnEnterFullAlert() { }
+        public void OnEnterUnaware()
+        {
+            _currentDetectionWaveId = 0;
+            ClearSearchPlan();
+        }
+
+        public void OnEnterSuspicious(Vector3 lookTarget)
+        {
+            _lookTarget = lookTarget;
+            ClearSearchPlan();
+        }
+
+        public void OnEnterSearching(Vector3 searchPos)
+        {
+            _moveTarget = searchPos;
+            _activeSearchWaveId = -1;
+            _searchStep = 0;
+            _hasSearchTarget = false;
+            _searchHoldUntil = 0f;
+            RefreshSearchPlan(true);
+        }
+
+        public void OnEnterAlert()
+        {
+            ClearSearchPlan();
+        }
+
+        public void OnEnterFullAlert()
+        {
+            ClearSearchPlan();
+        }
 
         public void SetPatrolRoute(PatrolRoute route)
         {
@@ -292,10 +527,32 @@ namespace INTIFALL.AI
         public void InvestigateSound(Vector3 soundPosition)
         {
             if (_isDead) return;
-            if (_stateMachine.CurrentState == EEnemyState.Unaware)
-            {
-                _stateMachine.TransitionTo(EEnemyState.Suspicious);
-            }
+            if (_stateMachine == null) return;
+
+            int waveId = EnemySquadCoordinator.NextWaveId();
+            _stateMachine.OnSquadAlert(soundPosition, waveId, false);
+        }
+
+        public void ReceiveSquadAlert(Vector3 alertPosition, int waveId, bool highPriority)
+        {
+            if (_isDead || _stateMachine == null)
+                return;
+
+            _stateMachine.OnSquadAlert(alertPosition, waveId, highPriority);
+        }
+
+        public void ConfigureDetectionProfile(
+            float pulseInterval,
+            float searchingMultiplier,
+            float alertedMultiplier,
+            float broadcastCooldown = -1f)
+        {
+            detectionPulseInterval = Mathf.Max(0.1f, pulseInterval);
+            searchingPulseMultiplier = Mathf.Max(0.1f, searchingMultiplier);
+            alertedPulseMultiplier = Mathf.Max(0.1f, alertedMultiplier);
+
+            if (broadcastCooldown >= 0f)
+                squadBroadcastCooldown = Mathf.Max(0.1f, broadcastCooldown);
         }
     }
 

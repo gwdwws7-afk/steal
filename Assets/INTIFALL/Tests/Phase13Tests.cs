@@ -12,6 +12,7 @@ namespace INTIFALL.Tests
         {
             var go = new GameObject("SaveLoadManager");
             var manager = go.AddComponent<SaveLoadManager>();
+            manager.DeleteSave();
             Assert.IsFalse(manager.HasSaveData);
             Object.DestroyImmediate(go);
         }

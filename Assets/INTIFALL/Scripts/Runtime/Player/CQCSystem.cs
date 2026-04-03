@@ -1,5 +1,7 @@
 using UnityEngine;
 using INTIFALL.AI;
+using INTIFALL.Environment;
+using INTIFALL.Input;
 using INTIFALL.System;
 
 namespace INTIFALL.Player
@@ -52,15 +54,35 @@ namespace INTIFALL.Player
         private ECQCAction _currentAction;
         private bool _isExecutingAction;
         private Transform _currentTarget;
+        private bool _isInsideVent;
+        private PlayerController _playerController;
 
         public bool IsExecutingAction => _isExecutingAction;
         public ECQCAction CurrentAction => _currentAction;
         public float ActionProgress => _currentActionTimer;
 
-        private void Awake()
+        private void EnsureReferences()
         {
             if (eyes == null)
                 eyes = transform;
+        }
+
+        private void Awake()
+        {
+            EnsureReferences();
+            _playerController = GetComponent<PlayerController>();
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<VentEntrance.VentEnteredEvent>(OnVentEntered);
+            EventBus.Subscribe<VentEntrance.VentExitedEvent>(OnVentExited);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<VentEntrance.VentEnteredEvent>(OnVentEntered);
+            EventBus.Unsubscribe<VentEntrance.VentExitedEvent>(OnVentExited);
         }
 
         private void Update()
@@ -68,6 +90,21 @@ namespace INTIFALL.Player
             if (_isExecutingAction)
             {
                 UpdateActionExecution();
+                return;
+            }
+
+            if (_isInsideVent)
+                return;
+            if (_playerController != null && _playerController.IsOnRope)
+                return;
+
+            if (InputCompat.GetKeyDown(KeyCode.Mouse0))
+            {
+                TryMeleeAttack();
+            }
+            else if (InputCompat.GetKeyDown(KeyCode.Q))
+            {
+                TryBackstab();
             }
         }
 
@@ -96,6 +133,9 @@ namespace INTIFALL.Player
 
         public bool TryMeleeAttack()
         {
+            EnsureReferences();
+            if (_isInsideVent) return false;
+            if (_playerController != null && _playerController.IsOnRope) return false;
             if (_isExecutingAction) return false;
 
             Collider[] hits = Physics.OverlapSphere(eyes.position, meleeRange, enemyLayer);
@@ -110,6 +150,9 @@ namespace INTIFALL.Player
 
         public bool TryBackstab()
         {
+            EnsureReferences();
+            if (_isInsideVent) return false;
+            if (_playerController != null && _playerController.IsOnRope) return false;
             if (_isExecutingAction) return false;
 
             Collider[] hits = Physics.OverlapSphere(eyes.position, backstabRange, enemyLayer);
@@ -129,6 +172,7 @@ namespace INTIFALL.Player
 
         public bool TryRopeKill(Transform ropePoint)
         {
+            if (_isInsideVent) return false;
             if (_isExecutingAction) return false;
 
             Collider[] hits = Physics.OverlapSphere(ropePoint.position, ropeKillRange, enemyLayer);
@@ -143,6 +187,9 @@ namespace INTIFALL.Player
 
         public bool TrySleepDart()
         {
+            EnsureReferences();
+            if (_isInsideVent) return false;
+            if (_playerController != null && _playerController.IsOnRope) return false;
             if (_isExecutingAction) return false;
 
             Ray ray = new Ray(eyes.position, eyes.forward);
@@ -304,6 +351,18 @@ namespace INTIFALL.Player
             {
                 CancelAction();
             }
+        }
+
+        private void OnVentEntered(VentEntrance.VentEnteredEvent evt)
+        {
+            _isInsideVent = true;
+            if (_isExecutingAction)
+                CancelAction();
+        }
+
+        private void OnVentExited(VentEntrance.VentExitedEvent evt)
+        {
+            _isInsideVent = false;
         }
     }
 }

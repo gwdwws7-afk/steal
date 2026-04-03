@@ -1,4 +1,5 @@
 using UnityEngine;
+using INTIFALL.Input;
 using UnityEngine.UI;
 using INTIFALL.Tools;
 using INTIFALL.System;
@@ -69,7 +70,7 @@ namespace INTIFALL.Economy
         {
             UpdateCreditDisplay();
 
-            if (Input.GetKeyDown(KeyCode.U) || Input.GetKeyDown(KeyCode.Tab))
+            if (InputCompat.GetKeyDown(KeyCode.U) || InputCompat.GetKeyDown(KeyCode.Tab))
             {
                 ToggleArsenal();
             }
@@ -79,7 +80,11 @@ namespace INTIFALL.Economy
         {
             if (creditDisplay != null && creditSystem != null)
             {
-                creditDisplay.text = $"{creditSystem.CurrentCredits} Credit";
+                string template = LocalizationService.Get(
+                    "arsenal.credits",
+                    fallbackEnglish: "Credits: {0}",
+                    fallbackChinese: string.Empty);
+                creditDisplay.text = string.Format(template, creditSystem.CurrentCredits);
             }
         }
 
@@ -175,6 +180,8 @@ namespace INTIFALL.Economy
 
             if (success)
             {
+                toolManager?.UnlockTool(toolData.toolName);
+
                 EventBus.Publish(new ToolPurchasedEvent
                 {
                     toolName = toolData.toolName,
@@ -190,8 +197,9 @@ namespace INTIFALL.Economy
         public EPurchaseResult TryUpgradeTool(ToolData toolData)
         {
             if (toolData == null) return EPurchaseResult.Failed;
-            if (toolData.upgradedVersion == null) return EPurchaseResult.Failed;
+            if (toolData.upgradedVersion == null) return EPurchaseResult.AlreadyOwned;
             if (creditSystem == null) return EPurchaseResult.Failed;
+            if (toolManager == null || !toolManager.IsToolUnlocked(toolData.toolName)) return EPurchaseResult.Locked;
 
             int upgradePrice = toolData.upgradePrice;
             if (!creditSystem.CanAfford(upgradePrice))
@@ -242,9 +250,15 @@ namespace INTIFALL.Economy
             return toolData.unlockedByDefault || toolData.unlockLevel <= GetCurrentProgressionLevel();
         }
 
+        public bool IsToolOwned(ToolData toolData)
+        {
+            if (toolData == null) return false;
+            return toolManager != null && toolManager.IsToolUnlocked(toolData.toolName);
+        }
+
         private int GetCurrentProgressionLevel()
         {
-            return GameManager.Instance?.CurrentLevel ?? 1;
+            return (GameManager.Instance?.CurrentLevelIndex ?? 0) + 1;
         }
     }
 
@@ -273,29 +287,50 @@ namespace INTIFALL.Economy
         {
             if (_toolData == null || _arsenalUI == null) return;
 
-            bool owned = _arsenalUI.TryGetComponent<ToolManager>()?.IsToolUnlocked(_toolData.toolName) ?? false;
+            bool owned = _arsenalUI.IsToolOwned(_toolData);
+            bool canUpgrade = owned && _toolData.upgradedVersion != null;
             bool available = _arsenalUI.IsToolAvailable(_toolData);
             bool canAfford = _arsenalUI.CanAffordTool(_toolData);
 
             if (priceText != null)
             {
                 int price = _arsenalUI.GetToolPrice(_toolData);
-                priceText.text = owned ? "OWNED" : $"{price}";
+                priceText.text = owned
+                    ? (canUpgrade
+                        ? $"{price}"
+                        : LocalizationService.Get(
+                            "arsenal.price.max",
+                            fallbackEnglish: "MAX",
+                            fallbackChinese: string.Empty))
+                    : $"{price}";
             }
 
             if (statusText != null)
             {
                 if (owned)
-                    statusText.text = "UPGRADE";
+                {
+                    statusText.text = canUpgrade
+                        ? LocalizationService.Get(
+                            "arsenal.status.upgrade",
+                            fallbackEnglish: "UPGRADE",
+                            fallbackChinese: string.Empty)
+                        : LocalizationService.Get(
+                            "arsenal.status.max",
+                            fallbackEnglish: "MAX",
+                            fallbackChinese: string.Empty);
+                }
                 else if (!available)
-                    statusText.text = "LOCKED";
+                    statusText.text = LocalizationService.Get(
+                        "arsenal.status.locked",
+                        fallbackEnglish: "LOCKED",
+                        fallbackChinese: string.Empty);
                 else
                     statusText.text = "";
             }
 
             if (purchaseButton != null)
             {
-                purchaseButton.interactable = available && canAfford;
+                purchaseButton.interactable = available && canAfford && (!owned || canUpgrade);
             }
         }
 
@@ -303,7 +338,10 @@ namespace INTIFALL.Economy
         {
             if (_arsenalUI == null || _toolData == null) return;
 
-            EPurchaseResult result = _arsenalUI.TryPurchaseTool(_toolData);
+            bool owned = _arsenalUI.IsToolOwned(_toolData);
+            EPurchaseResult result = owned
+                ? _arsenalUI.TryUpgradeTool(_toolData)
+                : _arsenalUI.TryPurchaseTool(_toolData);
 
             if (result == EPurchaseResult.Success)
             {
@@ -312,3 +350,4 @@ namespace INTIFALL.Economy
         }
     }
 }
+

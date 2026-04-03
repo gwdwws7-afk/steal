@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33ea2be6ee649a64897dac321ad70e20, type: 3}
+  m_Name: EnemyType_Reinforced
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.AI.EnemyTypeData
+  enemyType: 1
+  displayName: "\u5F3A\u5316\u58EB\u5175"
+  hp: 2
+  damage: 1
+  attackRange: 3
+  attackCooldown: 1.5
+  walkSpeed: 3
+  runSpeed: 5.5
+  visionDistance: 15
+  visionAngle: 60
+  crouchVisionMultiplier: 0.5
+  walkSoundRadius: 7.5
+  runSoundRadius: 18
+  crouchSoundRadius: 2
+  commRange: 30
+  canPatrol: 1
+  canChase: 1
+  canCallReinforcements: 0
+  isInvisibleToStealth: 0

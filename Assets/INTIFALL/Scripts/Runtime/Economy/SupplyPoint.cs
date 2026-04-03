@@ -1,4 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
+using INTIFALL.Input;
 using INTIFALL.Player;
 using INTIFALL.Tools;
 using INTIFALL.System;
@@ -17,6 +19,8 @@ namespace INTIFALL.Economy
         [SerializeField] private bool providesFirstAid = true;
         [SerializeField] private bool providesTools = true;
         [SerializeField] private int firstAidRestoreAmount = 5;
+        [SerializeField] private int toolAmmoRefillAmount = 1;
+        [SerializeField] private bool resetToolCooldownOnSupply;
         [SerializeField] private float interactionRange = 2f;
         [SerializeField] private float cooldownDuration = 30f;
 
@@ -86,27 +90,36 @@ namespace INTIFALL.Economy
 
         private void UpdatePrompt()
         {
-            if (uiPromptText == null) return;
+            if (uiPromptText == null)
+                return;
 
             if (!_playerInRange)
             {
-                uiPromptText.text = "";
+                uiPromptText.text = string.Empty;
                 return;
             }
 
             if (_isOnCooldown)
             {
-                uiPromptText.text = $"冷却中... {CooldownProgress:P0}";
+                string template = LocalizationService.Get(
+                    "supply.prompt.cooldown",
+                    fallbackEnglish: "Cooling down... {0}",
+                    fallbackChinese: string.Empty);
+                uiPromptText.text = string.Format(template, CooldownProgress.ToString("P0"));
             }
             else
             {
-                uiPromptText.text = "按 E 补给";
+                uiPromptText.text = LocalizationService.Get(
+                    "supply.prompt.ready",
+                    fallbackEnglish: "Press E to resupply",
+                    fallbackChinese: string.Empty);
             }
         }
 
         private void UpdateVisualState()
         {
-            if (indicatorMesh == null) return;
+            if (indicatorMesh == null)
+                return;
 
             indicatorMesh.material = _isOnCooldown ? cooldownMaterial : activeMaterial;
 
@@ -116,23 +129,28 @@ namespace INTIFALL.Economy
 
         public void TrySupply()
         {
-            if (_isOnCooldown) return;
-            if (!_playerInRange) return;
+            if (_isOnCooldown)
+                return;
+            if (!_playerInRange)
+                return;
 
             bool supplied = false;
 
             if (providesFirstAid && _playerHealth != null)
             {
-                if (_playerHealth.FirstAidCount < _playerHealth.FirstAidCount)
+                int beforeHp = _playerHealth.CurrentHP;
+                if (beforeHp < _playerHealth.MaxHP)
                 {
-                    _playerHealth.TakeDamage(0);
                     _playerHealth.Heal(firstAidRestoreAmount);
-                    EventBus.Publish(new SupplyPointUsedEvent
+                    if (_playerHealth.CurrentHP > beforeHp)
                     {
-                        position = transform.position,
-                        supplyType = "FirstAid"
-                    });
-                    supplied = true;
+                        EventBus.Publish(new SupplyPointUsedEvent
+                        {
+                            position = transform.position,
+                            supplyType = "FirstAid"
+                        });
+                        supplied = true;
+                    }
                 }
             }
 
@@ -140,10 +158,18 @@ namespace INTIFALL.Economy
             {
                 for (int i = 0; i < _playerToolManager.EquippedTools.Length; i++)
                 {
-                    var tool = _playerToolManager.EquippedTools[i];
-                    if (tool != null && tool.CurrentAmmo < tool.maxAmmo)
+                    ToolBase tool = _playerToolManager.EquippedTools[i];
+                    if (tool == null || tool.CurrentAmmo >= tool.maxAmmo)
+                        continue;
+
+                    int beforeAmmo = tool.CurrentAmmo;
+                    tool.Reload(Mathf.Max(1, toolAmmoRefillAmount));
+
+                    if (tool.CurrentAmmo > beforeAmmo)
                     {
-                        tool.Reload(tool.maxAmmo);
+                        if (resetToolCooldownOnSupply)
+                            tool.ResetCooldown();
+
                         EventBus.Publish(new SupplyPointUsedEvent
                         {
                             position = transform.position,
@@ -174,25 +200,25 @@ namespace INTIFALL.Economy
 
         private void OnEnable()
         {
-            EventBus.Subscribe<PlayerInteractEvent>(OnPlayerInteract);
+            EventBus.Subscribe<InputManager.InteractEvent>(OnPlayerInteract);
         }
 
         private void OnDisable()
         {
-            EventBus.Unsubscribe<PlayerInteractEvent>(OnPlayerInteract);
+            EventBus.Unsubscribe<InputManager.InteractEvent>(OnPlayerInteract);
         }
 
-        private void OnPlayerInteract(PlayerInteractEvent evt)
+        private void OnPlayerInteract(InputManager.InteractEvent evt)
         {
-            if (_playerInRange && Vector3.Distance(transform.position, evt.position) <= interactionRange)
-            {
+            if (_playerInRange)
                 TrySupply();
-            }
         }
 
-        public struct PlayerInteractEvent
+        public void Configure(bool firstAidEnabled, bool toolsEnabled, float cooldownSeconds)
         {
-            public Vector3 position;
+            providesFirstAid = firstAidEnabled;
+            providesTools = toolsEnabled;
+            cooldownDuration = Mathf.Max(0f, cooldownSeconds);
         }
     }
 }

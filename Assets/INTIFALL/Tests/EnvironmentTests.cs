@@ -1,6 +1,8 @@
 using NUnit.Framework;
 using INTIFALL.Environment;
+using INTIFALL.Player;
 using UnityEngine;
+using System.Reflection;
 
 namespace INTIFALL.Tests
 {
@@ -35,6 +37,25 @@ namespace INTIFALL.Tests
         }
 
         [Test]
+        public void ElectronicDoor_ApplyEMPDisruption_UnlocksAndOpensDoor()
+        {
+            var doorGo = new GameObject("ElectronicDoor");
+            doorGo.AddComponent<BoxCollider>();
+            var door = doorGo.AddComponent<ElectronicDoor>();
+
+            Assert.IsTrue(door.IsLocked);
+            Assert.IsFalse(door.IsOpen);
+
+            door.ApplyEMPDisruption(2f);
+
+            Assert.IsTrue(door.IsEMPDisabled);
+            Assert.IsFalse(door.IsLocked);
+            Assert.IsTrue(door.IsOpen);
+
+            Object.DestroyImmediate(doorGo);
+        }
+
+        [Test]
         public void SurveillanceCamera_Defaults()
         {
             var cam = new GameObject("SurveillanceCamera").AddComponent<SurveillanceCamera>();
@@ -48,6 +69,51 @@ namespace INTIFALL.Tests
             var vent = new GameObject("VentEntrance").AddComponent<VentEntrance>();
             Assert.IsFalse(vent.IsInside);
             Object.DestroyImmediate(vent.gameObject);
+        }
+
+        [Test]
+        public void HangingPoint_PlayerDetachedExternally_ReleasesOccupiedState()
+        {
+            var player = new GameObject("Player");
+            player.AddComponent<PlayerStateMachine>();
+            player.AddComponent<CharacterController>();
+            var playerController = player.AddComponent<PlayerController>();
+            InvokePrivate(playerController, "Awake");
+            InvokePrivate(playerController, "OnEnable");
+
+            var pointGo = new GameObject("HangingPoint");
+            var point = pointGo.AddComponent<HangingPoint>();
+
+            SetPrivateField(point, "_player", player);
+            InvokePrivate(point, "Attach");
+
+            Assert.IsTrue(point.IsOccupied);
+            Assert.IsTrue(point.PlayerAttached);
+            Assert.IsTrue(playerController.IsOnRope);
+
+            playerController.DetachFromRope();
+            InvokePrivate(point, "Update");
+
+            Assert.IsFalse(point.IsOccupied, "Hanging point should release occupied state after external rope detach.");
+            Assert.IsFalse(point.PlayerAttached, "Hanging point should clear player attachment after external rope detach.");
+
+            InvokePrivate(playerController, "OnDisable");
+            Object.DestroyImmediate(pointGo);
+            Object.DestroyImmediate(player);
+        }
+
+        private static void InvokePrivate(object target, string methodName)
+        {
+            MethodInfo method = target.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(method, $"Missing private method: {methodName}");
+            method.Invoke(target, null);
+        }
+
+        private static void SetPrivateField<T>(object target, string fieldName, T value)
+        {
+            FieldInfo field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(field, $"Missing private field: {fieldName}");
+            field.SetValue(target, value);
         }
     }
 }

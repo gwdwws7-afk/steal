@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10daed8730b51c64d9f2f72d37d89300, type: 3}
+  m_Name: ToolData_Drone
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Tools.ToolData
+  toolName: Drone
+  toolNameCN: Drone
+  category: 1
+  defaultSlot: 3
+  slotCost: 2
+  damage: 0
+  range: 18
+  cooldown: 38
+  duration: 24
+  maxAmmo: 1
+  energyCost: 22
+  upgradePrice: 280
+  upgradedVersion: {fileID: 0}
+  unlockedByDefault: 0
+  unlockPrice: 240
+  unlockLevel: 3
+  icon: {fileID: 0}
+  description: Experimental drone control variant.
+  runtimePrefab: {fileID: 5161109982760462153, guid: db6acf040cb117d4ca5653605e3e1f92, type: 3}
+
+

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using INTIFALL.System;
 
 namespace INTIFALL.Input
@@ -48,29 +48,29 @@ namespace INTIFALL.Input
                 float h = 0f;
                 float v = 0f;
 
-                if (Input.GetKey(moveForward)) v += 1f;
-                if (Input.GetKey(moveBackward)) v -= 1f;
-                if (Input.GetKey(moveRight)) h += 1f;
-                if (Input.GetKey(moveLeft)) h -= 1f;
+                if (InputCompat.GetKey(moveForward)) v += 1f;
+                if (InputCompat.GetKey(moveBackward)) v -= 1f;
+                if (InputCompat.GetKey(moveRight)) h += 1f;
+                if (InputCompat.GetKey(moveLeft)) h -= 1f;
 
                 return new Vector2(h, v).normalized;
             }
         }
 
-        public bool IsSprinting => _inputEnabled && Input.GetKey(sprint);
-        public bool IsCrouching => _inputEnabled && Input.GetKey(crouch);
-        public bool IsJumping => _inputEnabled && Input.GetKeyDown(jump);
-        public bool IsRolling => _inputEnabled && Input.GetKeyDown(roll);
-        public bool IsInteracting => _inputEnabled && Input.GetKeyDown(interact);
-        public bool IsUsingTool => _inputEnabled && Input.GetKeyDown(useTool);
-        public bool IsPausing => _inputEnabled && Input.GetKeyDown(pause);
-        public bool IsOpeningArsenal => _inputEnabled && Input.GetKeyDown(arsenal);
-        public bool IsTogglingHUD => _inputEnabled && Input.GetKeyDown(toggleHUD);
+        public bool IsSprinting => _inputEnabled && InputCompat.GetKey(sprint);
+        public bool IsCrouching => _inputEnabled && InputCompat.GetKey(crouch);
+        public bool IsJumping => _inputEnabled && InputCompat.GetKeyDown(jump);
+        public bool IsRolling => _inputEnabled && InputCompat.GetKeyDown(roll);
+        public bool IsInteracting => _inputEnabled && InputCompat.GetKeyDown(interact);
+        public bool IsUsingTool => _inputEnabled && InputCompat.GetKeyDown(useTool);
+        public bool IsPausing => _inputEnabled && InputCompat.GetKeyDown(pause);
+        public bool IsOpeningArsenal => _inputEnabled && InputCompat.GetKeyDown(arsenal);
+        public bool IsTogglingHUD => _inputEnabled && InputCompat.GetKeyDown(toggleHUD);
 
-        public bool IsMouseLeftDown => _inputEnabled && Input.GetKey(mouseLeft);
-        public bool IsMouseRightDown => _inputEnabled && Input.GetKey(mouseRight);
-        public bool IsMouseLeftPressed => _inputEnabled && Input.GetKeyDown(mouseLeft);
-        public bool IsMouseRightPressed => _inputEnabled && Input.GetKeyDown(mouseRight);
+        public bool IsMouseLeftDown => _inputEnabled && InputCompat.GetKey(mouseLeft);
+        public bool IsMouseRightDown => _inputEnabled && InputCompat.GetKey(mouseRight);
+        public bool IsMouseLeftPressed => _inputEnabled && InputCompat.GetKeyDown(mouseLeft);
+        public bool IsMouseRightPressed => _inputEnabled && InputCompat.GetKeyDown(mouseRight);
 
         public Vector2 MouseDelta
         {
@@ -78,14 +78,14 @@ namespace INTIFALL.Input
             {
                 if (!_inputEnabled) return Vector2.zero;
 
-                float x = Input.GetAxis("Mouse X") * mouseSensitivity;
-                float y = Input.GetAxis("Mouse Y") * mouseSensitivity * (invertY ? -1 : 1);
+                float x = InputCompat.GetAxis("Mouse X") * mouseSensitivity;
+                float y = InputCompat.GetAxis("Mouse Y") * mouseSensitivity * (invertY ? -1 : 1);
 
                 return new Vector2(x, y);
             }
         }
 
-        public float MouseScrollDelta => _inputEnabled ? Input.GetAxis("Mouse ScrollWheel") : 0f;
+        public float MouseScrollDelta => _inputEnabled ? InputCompat.GetAxis("Mouse ScrollWheel") : 0f;
 
         public int SelectedToolSlot
         {
@@ -93,10 +93,10 @@ namespace INTIFALL.Input
             {
                 if (!_inputEnabled) return -1;
 
-                if (Input.GetKeyDown(tool1)) return 0;
-                if (Input.GetKeyDown(tool2)) return 1;
-                if (Input.GetKeyDown(tool3)) return 2;
-                if (Input.GetKeyDown(tool4)) return 3;
+                if (InputCompat.GetKeyDown(tool1)) return 0;
+                if (InputCompat.GetKeyDown(tool2)) return 1;
+                if (InputCompat.GetKeyDown(tool3)) return 2;
+                if (InputCompat.GetKeyDown(tool4)) return 3;
 
                 return -1;
             }

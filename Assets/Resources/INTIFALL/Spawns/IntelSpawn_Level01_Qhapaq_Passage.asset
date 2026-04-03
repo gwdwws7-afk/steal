@@ -1,0 +1,107 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c786028ac3b82d4494410981112cfaa, type: 3}
+  m_Name: IntelSpawn_Level01_Qhapaq_Passage
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.IntelSpawnData
+  levelIndex: 0
+  levelName: Level01_Qhapaq_Passage
+  intelPoints:
+  - intelId: Level01_Qhapaq_Passage_terminal_a
+    position: {x: -30, y: 0.6, z: -12}
+    intelType: 1
+    displayName: Terminal A
+    description: Cargo intake logs
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level01_Qhapaq_Passage_terminal_b
+    position: {x: -18, y: 0.6, z: 9}
+    intelType: 1
+    displayName: Terminal B
+    description: Storage routing table
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level01_Qhapaq_Passage_qhipu_01
+    position: {x: 0, y: 0.6, z: 30}
+    intelType: 0
+    displayName: Qhipu Fragment 01
+    description: Stone room fragment
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level01_Qhapaq_Passage_qhipu_02
+    position: {x: 5, y: 0.6, z: 30}
+    intelType: 0
+    displayName: Qhipu Fragment 02
+    description: Stone room fragment
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level01_Qhapaq_Passage_qhipu_03
+    position: {x: 10, y: 0.6, z: 30}
+    intelType: 0
+    displayName: Qhipu Fragment 03
+    description: Stone room fragment
+    isHidden: 0
+    triggerEvents: []
+  supplyPoints:
+  - supplyId: Level01_Qhapaq_Passage_toolbox_a
+    position: {x: 12, y: 0.6, z: -8}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 20
+  - supplyId: Level01_Qhapaq_Passage_toolbox_b
+    position: {x: 16, y: 0.6, z: 10}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 20
+  - supplyId: Level01_Qhapaq_Passage_ammo_a
+    position: {x: 0, y: 0.6, z: 21}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level01_Qhapaq_Passage_ammo_b
+    position: {x: 30, y: 0.6, z: -2}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level01_Qhapaq_Passage_medkit
+    position: {x: 31, y: 0.6, z: 0}
+    providesFirstAid: 1
+    providesTools: 0
+    cooldownDuration: 25
+  exitPoints:
+  - exitId: Level01_Qhapaq_Passage_exit_main
+    position: {x: 32, y: 1, z: 30}
+    requiresAllIntel: 1
+    isMainExit: 1
+    routeId: dock_main
+    routeLabel: Dock Extraction
+    routeRiskTier: 0
+    creditMultiplier: 1
+    secondaryObjectiveBonus: 0
+    requiredIntelCount: -1
+  - exitId: Level01_Qhapaq_Passage_exit_stealth
+    position: {x: 26, y: 1, z: 18}
+    requiresAllIntel: 0
+    isMainExit: 0
+    routeId: service_walkway
+    routeLabel: Service Walkway
+    routeRiskTier: 2
+    creditMultiplier: 1.15
+    secondaryObjectiveBonus: 1
+    requiredIntelCount: 2
+  ventEntrancePositions:
+  - {x: -31, y: 1, z: 6}
+  ventExitPositions:
+  - {x: 24, y: 1, z: 17}
+
+
+
+

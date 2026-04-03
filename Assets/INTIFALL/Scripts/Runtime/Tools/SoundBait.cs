@@ -7,38 +7,50 @@ namespace INTIFALL.Tools
     public class SoundBait : ToolBase
     {
         [Header("SoundBait Specific")]
-        [SerializeField] private float attractRadius = 5f;
-        [SerializeField] private float soundDuration = 3f;
+        [SerializeField] private float attractRadius = 7f;
+        [SerializeField] private float soundDuration = 2.5f;
         [SerializeField] private AudioClip baitSound;
 
         private void Awake()
         {
             toolName = "SoundBait";
-            toolNameCN = "鸦鸣石";
+            toolNameCN = "Sound Bait";
             category = EToolCategory.AttentionShift;
             defaultSlot = EToolSlot.Slot3;
-            cooldown = 10f;
-            maxAmmo = 3;
+            cooldown = 8f;
+            maxAmmo = 4;
             _currentAmmo = maxAmmo;
-            range = 5f;
+            range = 7f;
+            duration = 2.5f;
         }
 
         protected override void OnToolUsed()
         {
+            float effectiveRadius = range > 0f ? range : attractRadius;
+            float effectiveDuration = duration > 0f ? duration : soundDuration;
+
             GameObject bait = new GameObject("SoundBait");
             bait.transform.position = transform.position;
 
             SoundBaitComponent component = bait.AddComponent<SoundBaitComponent>();
-            component.Initialize(attractRadius, soundDuration, baitSound);
+            component.Initialize(effectiveRadius, effectiveDuration, baitSound);
 
-            Destroy(bait, soundDuration + 1f);
+            Destroy(bait, effectiveDuration + 1f);
 
             EventBus.Publish(new SoundBaitUsedEvent
             {
                 position = transform.position,
-                attractRadius = attractRadius,
-                duration = soundDuration
+                attractRadius = effectiveRadius,
+                duration = effectiveDuration
             });
+        }
+
+        protected override void OnApplyToolData(ToolData data)
+        {
+            if (data.range > 0f)
+                attractRadius = data.range;
+            if (data.duration > 0f)
+                soundDuration = data.duration;
         }
     }
 
@@ -48,6 +60,7 @@ namespace INTIFALL.Tools
         private float _soundDuration;
         private AudioClip _sound;
         private float _timer;
+        private bool _triggered;
         private AudioSource _audioSource;
 
         public void Initialize(float radius, float duration, AudioClip sound)
@@ -56,6 +69,7 @@ namespace INTIFALL.Tools
             _soundDuration = duration;
             _sound = sound;
             _timer = 0f;
+            _triggered = false;
 
             _audioSource = gameObject.AddComponent<AudioSource>();
             _audioSource.clip = sound;
@@ -67,8 +81,9 @@ namespace INTIFALL.Tools
         {
             _timer += Time.deltaTime;
 
-            if (_timer >= _soundDuration)
+            if (!_triggered && _timer >= _soundDuration)
             {
+                _triggered = true;
                 Collider[] hits = Physics.OverlapSphere(transform.position, _attractRadius);
                 foreach (Collider hit in hits)
                 {
@@ -86,97 +101,5 @@ namespace INTIFALL.Tools
         public Vector3 position;
         public float attractRadius;
         public float duration;
-    }
-
-    public class DroneInterference : ToolBase
-    {
-        [Header("DroneInterference Specific")]
-        [SerializeField] private float controlRadius = 15f;
-        [SerializeField] private float energyDuration = 30f;
-        [SerializeField] private GameObject dronePrefab;
-
-        private void Awake()
-        {
-            toolName = "DroneInterference";
-            toolNameCN = "蜂群碎片";
-            category = EToolCategory.AttentionShift;
-            defaultSlot = EToolSlot.Slot4;
-            cooldown = 60f;
-            maxAmmo = 1;
-            _currentAmmo = maxAmmo;
-            range = 15f;
-        }
-
-        public override void Use()
-        {
-            if (!CanUse()) return;
-
-            if (dronePrefab != null)
-            {
-                GameObject drone = Instantiate(dronePrefab, transform.position + Vector3.up * 2f, Quaternion.identity);
-                InterferenceDrone droneComponent = drone.GetComponent<InterferenceDrone>();
-                if (droneComponent != null)
-                {
-                    droneComponent.Initialize(controlRadius, energyDuration);
-                }
-            }
-
-            _currentAmmo--;
-            _currentCooldown = cooldown;
-            _isOnCooldown = true;
-
-            EventBus.Publish(new ToolUsedEvent
-            {
-                toolName = toolName,
-                category = category
-            });
-        }
-    }
-
-    public class InterferenceDrone : MonoBehaviour
-    {
-        private float _controlRadius;
-        private float _energyDuration;
-        private float _timer;
-        private Vector3 _startPos;
-
-        public void Initialize(float radius, float duration)
-        {
-            _controlRadius = radius;
-            _energyDuration = duration;
-            _timer = 0f;
-            _startPos = transform.position;
-        }
-
-        private void Update()
-        {
-            _timer += Time.deltaTime;
-
-            transform.position = _startPos + Vector3.up * 2f + Vector3.right * Mathf.Sin(_timer * 2f) * 2f;
-
-            if (_timer >= _energyDuration)
-            {
-                Destroy(gameObject);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            Collider[] hits = Physics.OverlapSphere(transform.position, _controlRadius);
-            foreach (Collider hit in hits)
-            {
-                if (hit.TryGetComponent<EnemyController>(out var enemy))
-                {
-                    enemy.InvestigateSound(transform.position);
-                }
-            }
-        }
-    }
-
-    public struct DroneUsedEvent
-    {
-        public Vector3 position;
-        public float controlRadius;
-        public float energyDuration;
     }
 }

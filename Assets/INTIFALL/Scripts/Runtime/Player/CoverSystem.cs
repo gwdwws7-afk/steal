@@ -1,4 +1,5 @@
 using UnityEngine;
+using INTIFALL.Input;
 
 namespace INTIFALL.Player
 {
@@ -76,7 +77,7 @@ namespace INTIFALL.Player
                 _player.State == EPlayerState.Crouch)
                 return;
 
-            if (!Input.GetKeyDown(KeyCode.E)) return;
+            if (!InputCompat.GetKeyDown(KeyCode.E)) return;
 
             if (DetectCover(out CoverData cover))
             {
@@ -160,13 +161,13 @@ namespace INTIFALL.Player
 
         private void HandleCoverInput()
         {
-            if (Input.GetKeyDown(KeyCode.E))
+            if (InputCompat.GetKeyDown(KeyCode.E))
             {
                 ExitCover();
                 return;
             }
 
-            float h = Input.GetAxis("Horizontal");
+            float h = InputCompat.GetAxis("Horizontal");
 
             if (h < -0.5f && !_isPeekingLeft)
             {

@@ -1,0 +1,126 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c786028ac3b82d4494410981112cfaa, type: 3}
+  m_Name: IntelSpawn_Level03_Underground_Labs
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.IntelSpawnData
+  levelIndex: 2
+  levelName: Level03_Underground_Labs
+  intelPoints:
+  - intelId: Level03_Underground_Labs_terminal_a
+    position: {x: -24, y: 0.6, z: -16}
+    intelType: 1
+    displayName: Terminal A
+    description: Perimeter logs
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level03_Underground_Labs_terminal_b
+    position: {x: -10, y: 0.6, z: 2}
+    intelType: 1
+    displayName: Terminal B
+    description: Gene cultivation logs
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level03_Underground_Labs_terminal_c
+    position: {x: 16, y: 0.6, z: 10}
+    intelType: 1
+    displayName: Terminal C
+    description: Lighting and elevator control
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level03_Underground_Labs_terminal_d
+    position: {x: 4, y: -7.4, z: 16}
+    intelType: 1
+    displayName: Terminal D
+    description: Core experiment archive
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level03_Underground_Labs_qhipu_01
+    position: {x: -2, y: -7.4, z: 20}
+    intelType: 0
+    displayName: Qhipu Fragment 01
+    description: Underground hallucination shard
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level03_Underground_Labs_qhipu_02
+    position: {x: 2, y: -7.4, z: 20}
+    intelType: 0
+    displayName: Qhipu Fragment 02
+    description: Underground hallucination shard
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level03_Underground_Labs_qhipu_03
+    position: {x: 6, y: -7.4, z: 20}
+    intelType: 0
+    displayName: Qhipu Fragment 03
+    description: Underground hallucination shard
+    isHidden: 0
+    triggerEvents: []
+  supplyPoints:
+  - supplyId: Level03_Underground_Labs_toolbox_a
+    position: {x: 14, y: 0.6, z: 10}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 20
+  - supplyId: Level03_Underground_Labs_toolbox_b
+    position: {x: 8, y: -7.4, z: 16}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 20
+  - supplyId: Level03_Underground_Labs_ammo_a
+    position: {x: -8, y: 0.6, z: 2}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level03_Underground_Labs_ammo_b
+    position: {x: 20, y: 0.6, z: 10}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level03_Underground_Labs_ammo_c
+    position: {x: 12, y: -7.4, z: 14}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level03_Underground_Labs_medkit
+    position: {x: 4, y: -7.4, z: 12}
+    providesFirstAid: 1
+    providesTools: 0
+    cooldownDuration: 25
+  exitPoints:
+  - exitId: Level03_Underground_Labs_exit_underground
+    position: {x: 22, y: -7, z: 20}
+    requiresAllIntel: 1
+    isMainExit: 1
+    routeId: underground_gate
+    routeLabel: Underground Gate
+    routeRiskTier: 0
+    creditMultiplier: 1
+    secondaryObjectiveBonus: 0
+    requiredIntelCount: -1
+  - exitId: Level03_Underground_Labs_exit_tunnel
+    position: {x: 10, y: -7, z: 14}
+    requiresAllIntel: 0
+    isMainExit: 0
+    routeId: coolant_tunnel
+    routeLabel: Coolant Tunnel
+    routeRiskTier: 3
+    creditMultiplier: 1.25
+    secondaryObjectiveBonus: 1
+    requiredIntelCount: 2
+  ventEntrancePositions:
+  - {x: -10, y: 1, z: -4}
+  ventExitPositions:
+  - {x: 12, y: -7, z: 14}
+
+
+
+

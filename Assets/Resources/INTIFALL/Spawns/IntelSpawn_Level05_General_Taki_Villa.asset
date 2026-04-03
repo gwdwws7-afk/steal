@@ -1,0 +1,133 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c786028ac3b82d4494410981112cfaa, type: 3}
+  m_Name: IntelSpawn_Level05_General_Taki_Villa
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.IntelSpawnData
+  levelIndex: 4
+  levelName: Level05_General_Taki_Villa
+  intelPoints:
+  - intelId: Level05_General_Taki_Villa_terminal_a
+    position: {x: -24, y: 0.6, z: -20}
+    intelType: 1
+    displayName: Terminal A
+    description: Outer checkpoint records
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level05_General_Taki_Villa_terminal_b
+    position: {x: -4, y: 8.6, z: 8}
+    intelType: 1
+    displayName: Terminal B
+    description: Mid tier light control
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level05_General_Taki_Villa_terminal_c
+    position: {x: 10, y: 8.6, z: 12}
+    intelType: 1
+    displayName: Terminal C
+    description: Priest comm log
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level05_General_Taki_Villa_terminal_d
+    position: {x: 16, y: 16.6, z: 22}
+    intelType: 1
+    displayName: Terminal D
+    description: Solar array control
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level05_General_Taki_Villa_terminal_e
+    position: {x: 0, y: 26.6, z: 30}
+    intelType: 1
+    displayName: Terminal E
+    description: Final decision terminal
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level05_General_Taki_Villa_qhipu_01
+    position: {x: -4, y: 26.6, z: 28}
+    intelType: 0
+    displayName: Qhipu Fragment 01
+    description: Final vision shard
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level05_General_Taki_Villa_qhipu_02
+    position: {x: 0, y: 26.6, z: 28}
+    intelType: 0
+    displayName: Qhipu Fragment 02
+    description: Final vision shard
+    isHidden: 0
+    triggerEvents: []
+  - intelId: Level05_General_Taki_Villa_qhipu_03
+    position: {x: 4, y: 26.6, z: 28}
+    intelType: 0
+    displayName: Qhipu Fragment 03
+    description: Final vision shard
+    isHidden: 0
+    triggerEvents: []
+  supplyPoints:
+  - supplyId: Level05_General_Taki_Villa_toolbox_a
+    position: {x: -20, y: 0.6, z: -18}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 20
+  - supplyId: Level05_General_Taki_Villa_toolbox_b
+    position: {x: -8, y: 8.6, z: 8}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 20
+  - supplyId: Level05_General_Taki_Villa_ammo_a
+    position: {x: -10, y: 0.6, z: -14}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level05_General_Taki_Villa_ammo_b
+    position: {x: 8, y: 8.6, z: 10}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level05_General_Taki_Villa_ammo_c
+    position: {x: 14, y: 16.6, z: 20}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level05_General_Taki_Villa_medkit
+    position: {x: 2, y: 8.6, z: 6}
+    providesFirstAid: 1
+    providesTools: 0
+    cooldownDuration: 25
+  exitPoints:
+  - exitId: Level05_General_Taki_Villa_exit_final
+    position: {x: 20, y: 26, z: 38}
+    requiresAllIntel: 1
+    isMainExit: 1
+    routeId: solar_bridge
+    routeLabel: Solar Bridge
+    routeRiskTier: 0
+    creditMultiplier: 1
+    secondaryObjectiveBonus: 0
+    requiredIntelCount: -1
+  - exitId: Level05_General_Taki_Villa_exit_balcony
+    position: {x: 10, y: 24, z: 32}
+    requiresAllIntel: 0
+    isMainExit: 0
+    routeId: western_balcony
+    routeLabel: Western Balcony
+    routeRiskTier: 3
+    creditMultiplier: 1.35
+    secondaryObjectiveBonus: 1
+    requiredIntelCount: 2
+  ventEntrancePositions:
+  - {x: -46, y: 1, z: -20}
+  ventExitPositions:
+  - {x: -6, y: 8, z: 8}
+
+
+
+

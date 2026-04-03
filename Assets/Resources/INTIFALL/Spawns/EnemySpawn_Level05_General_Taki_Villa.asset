@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 445973aaf300f014bb8deddff478053b, type: 3}
+  m_Name: EnemySpawn_Level05_General_Taki_Villa
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.EnemySpawnData
+  levelIndex: 4
+  levelName: Level05_General_Taki_Villa
+  spawnPoints:
+  - spawnId: Level05_General_Taki_Villa_enemy_01
+    position: {x: -40, y: 0, z: -24}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_outer_1
+    awarenessLevel: 0
+  - spawnId: Level05_General_Taki_Villa_enemy_02
+    position: {x: -28, y: 0, z: -20}
+    rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_outer_1
+    awarenessLevel: 0
+  - spawnId: Level05_General_Taki_Villa_enemy_03
+    position: {x: -16, y: 0, z: -18}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: -0.70710677}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_outer_2
+    awarenessLevel: 0
+  - spawnId: Level05_General_Taki_Villa_enemy_04
+    position: {x: -4, y: 0, z: -16}
+    rotation: {x: 0, y: 0, z: 0, w: 1}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_outer_2
+    awarenessLevel: 0
+  - spawnId: Level05_General_Taki_Villa_enemy_05
+    position: {x: -12, y: 8, z: 8}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}
+    enemyType: 1
+    isPatrol: 1
+    patrolRouteId: route_mid_1
+    awarenessLevel: 1
+  - spawnId: Level05_General_Taki_Villa_enemy_06
+    position: {x: 0, y: 8, z: 8}
+    rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+    enemyType: 1
+    isPatrol: 1
+    patrolRouteId: route_mid_1
+    awarenessLevel: 1
+  - spawnId: Level05_General_Taki_Villa_enemy_07
+    position: {x: 12, y: 8, z: 10}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: -0.70710677}
+    enemyType: 1
+    isPatrol: 1
+    patrolRouteId: route_mid_2
+    awarenessLevel: 1
+  - spawnId: Level05_General_Taki_Villa_enemy_08
+    position: {x: 18, y: 16, z: 20}
+    rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+    enemyType: 1
+    isPatrol: 1
+    patrolRouteId: route_solar_core
+    awarenessLevel: 1
+  - spawnId: Level05_General_Taki_Villa_enemy_09
+    position: {x: 8, y: 8, z: 12}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}
+    enemyType: 3
+    isPatrol: 1
+    patrolRouteId: route_mid_priest
+    awarenessLevel: 2
+  - spawnId: Level05_General_Taki_Villa_enemy_10
+    position: {x: 4, y: 26, z: 30}
+    rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+    enemyType: 3
+    isPatrol: 1
+    patrolRouteId: route_core_priest
+    awarenessLevel: 2
+  - spawnId: Level05_General_Taki_Villa_enemy_11
+    position: {x: 0, y: 16, z: 20}
+    rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+    enemyType: 2
+    isPatrol: 1
+    patrolRouteId: route_taki_center
+    awarenessLevel: 3
+  availablePatrolRoutes:
+  - route_outer_1
+  - route_outer_2
+  - route_mid_1
+  - route_mid_2
+  - route_solar_core
+  - route_mid_priest
+  - route_core_priest
+  - route_taki_center
+  maxConcurrentAlert: 4
+  communicationGroupSize: 5

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10daed8730b51c64d9f2f72d37d89300, type: 3}
+  m_Name: ToolData_FlashBang
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Tools.ToolData
+  toolName: FlashBang
+  toolNameCN: Flash Bang
+  category: 0
+  defaultSlot: 0
+  slotCost: 1
+  damage: 0
+  range: 10
+  cooldown: 18
+  duration: 3
+  maxAmmo: 2
+  energyCost: 14
+  upgradePrice: 120
+  upgradedVersion: {fileID: 0}
+  unlockedByDefault: 1
+  unlockPrice: 100
+  unlockLevel: 1
+  icon: {fileID: 0}
+  description: Blinds enemies in a short radius.
+  runtimePrefab: {fileID: 3127376932097381262, guid: 26c6db9a14e0ce7499564f5752a0aff0, type: 3}
+
+

@@ -1,6 +1,7 @@
+﻿using INTIFALL.Player;
+using INTIFALL.System;
 using UnityEngine;
 using UnityEngine.UI;
-using INTIFALL.Player;
 
 namespace INTIFALL.UI
 {
@@ -40,9 +41,7 @@ namespace INTIFALL.UI
             _maxHP = healthSystem.MaxHP;
 
             if (hpBars.Length != _maxHP)
-            {
-                System.Array.Resize(ref hpBars, _maxHP);
-            }
+                global::System.Array.Resize(ref hpBars, _maxHP);
 
             UpdateHPDisplay(healthSystem.CurrentHP, healthSystem.MaxHP);
             UpdateFirstAidDisplay();
@@ -54,17 +53,13 @@ namespace INTIFALL.UI
 
             for (int i = 0; i < hpBars.Length; i++)
             {
-                if (hpBars[i] == null) continue;
+                if (hpBars[i] == null)
+                    continue;
 
                 if (i < currentHP)
                 {
                     hpBars[i].color = GetHPColor(currentHP, maxHP);
                     hpBars[i].fillAmount = 1f;
-                }
-                else if (i == currentHP)
-                {
-                    hpBars[i].color = emptyHPColor;
-                    hpBars[i].fillAmount = 0f;
                 }
                 else
                 {
@@ -80,29 +75,34 @@ namespace INTIFALL.UI
                 hpFillImage.fillAmount = (float)currentHP / maxHP;
 
             if (currentHP <= 1 && currentHP > 0)
-            {
                 TriggerLowHPWarning();
-            }
         }
 
         public void UpdateFirstAidDisplay()
         {
-            if (_playerHealth == null) return;
+            if (_playerHealth == null)
+                return;
 
             if (firstAidCountText != null)
-                firstAidCountText.text = $"急救包: {_playerHealth.FirstAidCount}";
-
-            if (firstAidCooldownImage != null)
             {
-                if (_playerHealth.IsUsingFirstAid)
-                {
-                    firstAidCooldownImage.fillAmount = _playerHealth.FirstAidProgress;
-                    firstAidCooldownImage.gameObject.SetActive(true);
-                }
-                else
-                {
-                    firstAidCooldownImage.gameObject.SetActive(false);
-                }
+                string template = LocalizationService.Get(
+                    "hud.first_aid.count",
+                    fallbackEnglish: "First Aid: {0}",
+                    fallbackChinese: string.Empty);
+                firstAidCountText.text = string.Format(template, _playerHealth.FirstAidCount);
+            }
+
+            if (firstAidCooldownImage == null)
+                return;
+
+            if (_playerHealth.IsUsingFirstAid)
+            {
+                firstAidCooldownImage.fillAmount = _playerHealth.FirstAidProgress;
+                firstAidCooldownImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                firstAidCooldownImage.gameObject.SetActive(false);
             }
         }
 
@@ -118,19 +118,18 @@ namespace INTIFALL.UI
 
             if (ratio > 0.6f)
                 return fullHPColor;
-            else if (ratio > 0.3f)
+            if (ratio > 0.3f)
                 return mediumHPColor;
-            else
-                return lowHPColor;
+            return lowHPColor;
         }
 
         private void TriggerLowHPWarning()
         {
-            if (damageOverlay != null)
-            {
-                damageOverlay.gameObject.SetActive(true);
-                _damageAlpha = 0.5f;
-            }
+            if (damageOverlay == null)
+                return;
+
+            damageOverlay.gameObject.SetActive(true);
+            _damageAlpha = 0.5f;
         }
 
         private void Update()
@@ -141,56 +140,54 @@ namespace INTIFALL.UI
 
         private void UpdateDamageOverlay()
         {
-            if (_damageAlpha > 0)
-            {
-                _damageAlpha -= Time.deltaTime * damageFadeSpeed;
-                _damageAlpha = Mathf.Max(0, _damageAlpha);
+            if (_damageAlpha <= 0f)
+                return;
 
-                if (damageOverlay != null)
-                {
-                    Color c = damageOverlay.color;
-                    damageOverlay.color = new Color(c.r, c.g, c.b, _damageAlpha);
+            _damageAlpha = Mathf.Max(0f, _damageAlpha - Time.deltaTime * damageFadeSpeed);
 
-                    if (_damageAlpha <= 0)
-                        damageOverlay.gameObject.SetActive(false);
-                }
-            }
+            if (damageOverlay == null)
+                return;
+
+            Color c = damageOverlay.color;
+            damageOverlay.color = new Color(c.r, c.g, c.b, _damageAlpha);
+
+            if (_damageAlpha <= 0f)
+                damageOverlay.gameObject.SetActive(false);
         }
 
         private void UpdateHealOverlay()
         {
-            if (_healAlpha > 0)
-            {
-                _healAlpha -= Time.deltaTime * healFadeSpeed;
-                _healAlpha = Mathf.Max(0, _healAlpha);
+            if (_healAlpha <= 0f)
+                return;
 
-                if (healOverlay != null)
-                {
-                    Color c = healOverlay.color;
-                    healOverlay.color = new Color(c.r, c.g, c.b, _healAlpha);
+            _healAlpha = Mathf.Max(0f, _healAlpha - Time.deltaTime * healFadeSpeed);
 
-                    if (_healAlpha <= 0)
-                        healOverlay.gameObject.SetActive(false);
-                }
-            }
+            if (healOverlay == null)
+                return;
+
+            Color c = healOverlay.color;
+            healOverlay.color = new Color(c.r, c.g, c.b, _healAlpha);
+
+            if (_healAlpha <= 0f)
+                healOverlay.gameObject.SetActive(false);
         }
 
         public void ShowDamageEffect()
         {
-            if (damageOverlay != null)
-            {
-                damageOverlay.gameObject.SetActive(true);
-                _damageAlpha = 0.6f;
-            }
+            if (damageOverlay == null)
+                return;
+
+            damageOverlay.gameObject.SetActive(true);
+            _damageAlpha = 0.6f;
         }
 
         public void ShowHealEffect()
         {
-            if (healOverlay != null)
-            {
-                healOverlay.gameObject.SetActive(true);
-                _healAlpha = 0.4f;
-            }
+            if (healOverlay == null)
+                return;
+
+            healOverlay.gameObject.SetActive(true);
+            _healAlpha = 0.4f;
         }
     }
 }

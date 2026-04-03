@@ -1,5 +1,5 @@
+﻿using INTIFALL.System;
 using NUnit.Framework;
-using INTIFALL.System;
 using UnityEngine;
 
 namespace INTIFALL.Tests
@@ -85,9 +85,9 @@ namespace INTIFALL.Tests
         [Test]
         public void LoadLevel_ShouldSetLevelInfo()
         {
-            _gm.LoadLevel(2, "祭司之眼");
+            _gm.LoadLevel(2, "Priest Eye");
             Assert.AreEqual(2, _gm.CurrentLevelIndex);
-            Assert.AreEqual("祭司之眼", _gm.CurrentLevelName);
+            Assert.AreEqual("Priest Eye", _gm.CurrentLevelName);
             Assert.AreEqual(EGameState.Playing, _gm.CurrentState);
         }
 
@@ -141,6 +141,124 @@ namespace INTIFALL.Tests
         {
             _gm.StartGame();
             _gm.LevelComplete();
+            Assert.AreEqual(EGameState.LevelComplete, _gm.CurrentState);
+        }
+
+        [Test]
+        public void CalculateMissionResult_WithObjectiveInputs_ReturnsRankAndCredits()
+        {
+            _gm.LoadLevel(1, "Level02");
+            _gm.StartGame();
+
+            MissionResult result = _gm.CalculateMissionResult(
+                secondaryObjectivesCompleted: 2,
+                intelCollected: 3,
+                intelRequired: 3,
+                timeBudgetSeconds: 300f);
+
+            Assert.AreEqual("S", result.Rank);
+            Assert.Greater(result.CreditsEarned, 0);
+            Assert.AreEqual(3, result.IntelCollected);
+            Assert.AreEqual(3, result.IntelRequired);
+            Assert.AreEqual("Main Extraction", result.ExtractionRouteLabel);
+        }
+
+        [Test]
+        public void CalculateMissionResult_WithOptionalRoute_UpdatesRouteFields()
+        {
+            _gm.LoadLevel(2, "Level03");
+            _gm.StartGame();
+
+            MissionResult result = _gm.CalculateMissionResult(
+                secondaryObjectivesCompleted: 1,
+                intelCollected: 2,
+                intelRequired: 3,
+                timeBudgetSeconds: 600f,
+                extractionRouteId: "coolant_tunnel",
+                extractionRouteLabel: "Coolant Tunnel",
+                isMainRoute: false,
+                routeRiskTier: 3,
+                routeCreditMultiplier: 1.25f,
+                routeSecondaryObjectiveBonus: 1);
+
+            Assert.IsTrue(result.UsedOptionalExit);
+            Assert.AreEqual("coolant_tunnel", result.ExtractionRouteId);
+            Assert.AreEqual("Coolant Tunnel", result.ExtractionRouteLabel);
+            Assert.AreEqual(3, result.RouteRiskTier);
+            Assert.AreEqual(1.25f, result.RouteCreditMultiplier, 0.001f);
+            Assert.Greater(result.CreditsEarned, 0);
+            Assert.GreaterOrEqual(result.SecondaryObjectivesEvaluated, result.SecondaryObjectivesCompleted);
+        }
+
+        [Test]
+        public void CalculateMissionResult_WithSecondaryTotalInput_PropagatesToResult()
+        {
+            _gm.LoadLevel(2, "Level03");
+            _gm.StartGame();
+
+            MissionResult result = _gm.CalculateMissionResult(
+                secondaryObjectivesCompleted: 2,
+                intelCollected: 3,
+                intelRequired: 3,
+                timeBudgetSeconds: 600f,
+                extractionRouteId: "coolant_tunnel",
+                extractionRouteLabel: "Coolant Tunnel",
+                isMainRoute: false,
+                routeRiskTier: 2,
+                routeCreditMultiplier: 1.2f,
+                routeSecondaryObjectiveBonus: 1,
+                secondaryObjectivesTotal: 4);
+
+            Assert.AreEqual(2, result.SecondaryObjectivesCompleted);
+            Assert.AreEqual(3, result.SecondaryObjectivesEvaluated);
+            Assert.AreEqual(5, result.SecondaryObjectivesTotal);
+        }
+
+        [Test]
+        public void CalculateMissionResult_DefaultAndExplicitMainRoute_UseSameSettlementFields()
+        {
+            _gm.LoadLevel(1, "Level02");
+            _gm.StartGame();
+
+            MissionResult simple = _gm.CalculateMissionResult(
+                secondaryObjectivesCompleted: 1,
+                intelCollected: 2,
+                intelRequired: 3,
+                timeBudgetSeconds: 450f);
+
+            MissionResult explicitMain = _gm.CalculateMissionResult(
+                secondaryObjectivesCompleted: 1,
+                intelCollected: 2,
+                intelRequired: 3,
+                timeBudgetSeconds: 450f,
+                extractionRouteId: "main",
+                extractionRouteLabel: "Main Extraction",
+                isMainRoute: true,
+                routeRiskTier: 0,
+                routeCreditMultiplier: 1f,
+                routeSecondaryObjectiveBonus: 0,
+                secondaryObjectivesTotal: 2);
+
+            Assert.AreEqual(simple.Rank, explicitMain.Rank);
+            Assert.AreEqual(simple.CreditsEarned, explicitMain.CreditsEarned);
+            Assert.AreEqual(simple.ExtractionRouteId, explicitMain.ExtractionRouteId);
+            Assert.AreEqual(simple.SecondaryObjectivesTotal, explicitMain.SecondaryObjectivesTotal);
+        }
+
+        [Test]
+        public void ApplyMissionResult_AddsCreditsAndSetsLevelComplete()
+        {
+            _gm.StartGame();
+
+            MissionResult result = new MissionResult
+            {
+                CreditsEarned = 220,
+                Rank = "B"
+            };
+
+            _gm.ApplyMissionResult(result);
+
+            Assert.AreEqual(220, _gm.PlayerCredits);
             Assert.AreEqual(EGameState.LevelComplete, _gm.CurrentState);
         }
     }

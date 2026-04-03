@@ -2,13 +2,23 @@ using NUnit.Framework;
 using INTIFALL.Player;
 using INTIFALL.System;
 using UnityEngine;
+using System.Reflection;
 
 namespace INTIFALL.Tests
 {
     public class PlayerHealthSystemTests
     {
+        private static readonly MethodInfo UpdateMethod = typeof(PlayerHealthSystem).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic);
         private PlayerHealthSystem _health;
         private GameObject _go;
+
+        private static void InvokeUpdate(PlayerHealthSystem health)
+        {
+            if (UpdateMethod == null)
+                throw new global::System.MissingMethodException(nameof(PlayerHealthSystem), "Update");
+
+            UpdateMethod.Invoke(health, null);
+        }
 
         [SetUp]
         public void Setup()
@@ -122,7 +132,7 @@ namespace INTIFALL.Tests
             _health.StartFirstAid();
 
             for (int i = 0; i < 20; i++)
-                _health.Update();
+                InvokeUpdate(_health);
 
             Assert.AreEqual(4, _health.FirstAidCount);
         }
@@ -132,7 +142,7 @@ namespace INTIFALL.Tests
         {
             _health.TakeDamage(3);
             _health.StartFirstAid();
-            for (int i = 0; i < 20; i++) _health.Update();
+            for (int i = 0; i < 20; i++) InvokeUpdate(_health);
 
             _health.ResetForLevel();
 

@@ -95,6 +95,23 @@ namespace INTIFALL.Tests
         }
 
         [Test]
+        public void Use_UnlimitedAmmo_DoesNotGoNegative()
+        {
+            _tool.toolName = "UnlimitedTool";
+            _tool.ammo = 0;
+            _tool.maxAmmo = 0;
+            _tool.cooldown = 0f;
+            _tool.Initialize(_manager);
+
+            _tool.Use();
+            _tool.Use();
+
+            Assert.AreEqual(0, _tool.CurrentAmmo);
+            Assert.IsTrue(_tool.CanUse());
+            Assert.IsFalse(_tool.IsOnCooldown);
+        }
+
+        [Test]
         public void CanUse_OutOfAmmo_ReturnsFalse()
         {
             _tool.Use();
@@ -170,6 +187,7 @@ namespace INTIFALL.Tests
         public void Reload_AddsAmmo()
         {
             _tool.Use();
+            _tool.ResetCooldown();
             _tool.Use();
             Assert.AreEqual(1, _tool.CurrentAmmo);
 

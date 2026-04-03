@@ -1,0 +1,59 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbdd831568b48bf43b6e80f0b4af0b1a, type: 3}
+  m_Name: LevelData_Level02_Temple_Complex
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.LevelData
+  levelName: Level02_Temple_Complex
+  levelDisplayName: L02 Priest Eye Council Tower
+  levelIndex: 1
+  sceneName: Level02_Temple_Complex
+
+  plannedMainRoutes: 2
+  plannedStealthRoutes: 1
+  designedCompletionMinutes: 15
+  completionWindowMinMinutes: 13
+  completionWindowMaxMinutes: 17
+  patrolPressureTier: 2
+  enemyDensityTargetPerMinute: 0.47
+  flowNotes: Lower hall and upper archive routes plus one maintenance bypass.
+  infiltrationMinutes: 5
+  objectiveMinutes: 6
+  extractionMinutes: 4
+  infiltrationEnemyBudget: 2
+  objectiveEnemyBudget: 3
+  extractionEnemyBudget: 2
+  encounterNotes: Ground floor gate checks, archive sanctum hold, rooftop extraction pressure.
+  standardTime: 900
+  timeLimit: 1080
+  totalEnemyCount: 7
+  normalEnemyCount: 4
+  reinforcedEnemyCount: 2
+  heavyEnemyCount: 0
+  quipucamayocCount: 1
+  saqueosCount: 0
+  qhipuFragmentCount: 3
+  terminalCount: 4
+  supplyPointCount: 5
+  baseAlertDuration: 5
+  searchDuration: 8.5
+  fullAlertDuration: 30
+  hasVentSystem: 1
+  hasHangingPoints: 1
+  hasBreakableWalls: 0
+  hasElectronicDoors: 1
+  hasSurveillanceCameras: 1
+  baseCreditReward: 260
+  secondaryObjectiveBonus: 70
+  zeroKillBonus: 170
+  noDamageBonus: 190
+
+

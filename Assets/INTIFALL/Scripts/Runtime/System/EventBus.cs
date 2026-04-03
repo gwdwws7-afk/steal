@@ -11,12 +11,17 @@ namespace INTIFALL.System
 
         public static void Subscribe<T>(Action<T> handler)
         {
+            if (handler == null)
+                return;
+
             lock (_lock)
             {
                 Type eventType = typeof(T);
                 if (_eventTable.TryGetValue(eventType, out Delegate existing))
                 {
-                    _eventTable[eventType] = Delegate.Combine(existing, handler);
+                    // Keep subscriptions idempotent per handler to avoid duplicate callbacks after repeated OnEnable cycles.
+                    Delegate merged = Delegate.Combine(Delegate.Remove(existing, handler), handler);
+                    _eventTable[eventType] = merged;
                 }
                 else
                 {
@@ -27,12 +32,19 @@ namespace INTIFALL.System
 
         public static void Unsubscribe<T>(Action<T> handler)
         {
+            if (handler == null)
+                return;
+
             lock (_lock)
             {
                 Type eventType = typeof(T);
                 if (_eventTable.TryGetValue(eventType, out Delegate existing))
                 {
-                    _eventTable[eventType] = Delegate.Remove(existing, handler);
+                    Delegate next = Delegate.Remove(existing, handler);
+                    if (next == null)
+                        _eventTable.Remove(eventType);
+                    else
+                        _eventTable[eventType] = next;
                 }
             }
         }
@@ -47,6 +59,25 @@ namespace INTIFALL.System
                     return;
             }
             (handlers as Action<T>)?.Invoke(eventData);
+        }
+
+        public static int GetSubscriberCount<T>()
+        {
+            lock (_lock)
+            {
+                if (_eventTable.TryGetValue(typeof(T), out Delegate handlers))
+                    return handlers?.GetInvocationList().Length ?? 0;
+
+                return 0;
+            }
+        }
+
+        public static void ClearAllSubscribers()
+        {
+            lock (_lock)
+            {
+                _eventTable.Clear();
+            }
         }
     }
 

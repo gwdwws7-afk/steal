@@ -1,0 +1,103 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 445973aaf300f014bb8deddff478053b, type: 3}
+  m_Name: EnemySpawn_Level04_Qhipu_Core
+  m_EditorClassIdentifier: INTIFALL::INTIFALL.Data.EnemySpawnData
+  levelIndex: 3
+  levelName: Level04_Qhipu_Core
+  spawnPoints:
+  - spawnId: Level04_Qhipu_Core_enemy_01
+    position: {x: 34, y: 0, z: -12}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_gate
+    awarenessLevel: 0
+  - spawnId: Level04_Qhipu_Core_enemy_02
+    position: {x: 28, y: 0, z: -10}
+    rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_gate
+    awarenessLevel: 0
+  - spawnId: Level04_Qhipu_Core_enemy_03
+    position: {x: 22, y: 0, z: -8}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: -0.70710677}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_gate
+    awarenessLevel: 0
+  - spawnId: Level04_Qhipu_Core_enemy_04
+    position: {x: 10, y: 5, z: 4}
+    rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_outer_corridor
+    awarenessLevel: 0
+  - spawnId: Level04_Qhipu_Core_enemy_05
+    position: {x: -6, y: 5, z: 4}
+    rotation: {x: 0, y: 0, z: 0, w: 1}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_outer_corridor
+    awarenessLevel: 0
+  - spawnId: Level04_Qhipu_Core_enemy_06
+    position: {x: 6, y: 12, z: 16}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_core_patrol
+    awarenessLevel: 1
+  - spawnId: Level04_Qhipu_Core_enemy_07
+    position: {x: -8, y: 12, z: 16}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: -0.70710677}
+    enemyType: 0
+    isPatrol: 1
+    patrolRouteId: route_core_patrol
+    awarenessLevel: 1
+  - spawnId: Level04_Qhipu_Core_enemy_08
+    position: {x: 12, y: 5, z: 8}
+    rotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+    enemyType: 2
+    isPatrol: 1
+    patrolRouteId: route_data_center
+    awarenessLevel: 2
+  - spawnId: Level04_Qhipu_Core_enemy_09
+    position: {x: -12, y: 5, z: 8}
+    rotation: {x: 0, y: 0, z: 0, w: 1}
+    enemyType: 2
+    isPatrol: 1
+    patrolRouteId: route_data_center
+    awarenessLevel: 2
+  - spawnId: Level04_Qhipu_Core_enemy_10
+    position: {x: 0, y: 5, z: 10}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}
+    enemyType: 3
+    isPatrol: 1
+    patrolRouteId: route_priest_center
+    awarenessLevel: 2
+  - spawnId: Level04_Qhipu_Core_enemy_11
+    position: {x: 0, y: 12, z: 18}
+    rotation: {x: 0, y: 0.70710677, z: 0, w: -0.70710677}
+    enemyType: 3
+    isPatrol: 1
+    patrolRouteId: route_priest_core
+    awarenessLevel: 2
+  availablePatrolRoutes:
+  - route_gate
+  - route_outer_corridor
+  - route_core_patrol
+  - route_data_center
+  - route_priest_center
+  - route_priest_core
+  maxConcurrentAlert: 4
+  communicationGroupSize: 4

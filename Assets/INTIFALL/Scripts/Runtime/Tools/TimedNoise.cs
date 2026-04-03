@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using INTIFALL.AI;
 using INTIFALL.System;
 
@@ -7,31 +7,33 @@ namespace INTIFALL.Tools
     public class TimedNoise : ToolBase
     {
         [Header("TimedNoise Specific")]
-        [SerializeField] private float minDelay = 1f;
-        [SerializeField] private float maxDelay = 5f;
-        [SerializeField] private float noiseRadius = 15f;
+        [SerializeField] private float minDelay = 1.2f;
+        [SerializeField] private float maxDelay = 4.5f;
+        [SerializeField] private float noiseRadius = 18f;
         [SerializeField] private AudioClip noiseSound;
 
         private float _currentDelay;
-        private bool _isArmed;
         private GameObject _noiseSource;
 
         private void Awake()
         {
             toolName = "TimedNoise";
-            toolNameCN = "定时噪音";
+            toolNameCN = "Timed Noise";
             category = EToolCategory.AttentionShift;
             defaultSlot = EToolSlot.Slot2;
-            cooldown = 30f;
+            cooldown = 22f;
             maxAmmo = 2;
             _currentAmmo = maxAmmo;
-            range = 15f;
+            range = 18f;
+            duration = 3.5f;
         }
 
         protected override void OnToolUsed()
         {
-            _currentDelay = Random.Range(minDelay, maxDelay);
-            _isArmed = true;
+            float effectiveRadius = range > 0f ? range : noiseRadius;
+            float effectiveDelayCeiling = duration > 0f ? duration : maxDelay;
+            float effectiveMaxDelay = Mathf.Max(minDelay, effectiveDelayCeiling);
+            _currentDelay = Random.Range(minDelay, effectiveMaxDelay);
 
             _noiseSource = new GameObject("TimedNoiseSource");
             _noiseSource.transform.position = transform.position;
@@ -42,7 +44,7 @@ namespace INTIFALL.Tools
             source.playOnAwake = false;
 
             TimedNoiseComponent component = _noiseSource.AddComponent<TimedNoiseComponent>();
-            component.Initialize(_currentDelay, noiseRadius, source);
+            component.Initialize(_currentDelay, effectiveRadius, source);
 
             Destroy(_noiseSource, _currentDelay + 5f);
 
@@ -50,8 +52,16 @@ namespace INTIFALL.Tools
             {
                 position = transform.position,
                 delay = _currentDelay,
-                radius = noiseRadius
+                radius = effectiveRadius
             });
+        }
+
+        protected override void OnApplyToolData(ToolData data)
+        {
+            if (data.range > 0f)
+                noiseRadius = data.range;
+            if (data.duration > 0f)
+                maxDelay = Mathf.Max(minDelay, data.duration);
         }
 
         public void SetDelay(float delay)

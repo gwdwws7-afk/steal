@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
 using INTIFALL.System;
 
 namespace INTIFALL.Environment
@@ -14,7 +15,7 @@ namespace INTIFALL.Environment
 
         [Header("Lock Settings")]
         [SerializeField] private bool isLocked = true;
-        [SerializeField] private int requiredKeycardLevel = 0;
+        [SerializeField] private int requiredKeycardLevel;
         [SerializeField] private string[] unlockCodes;
 
         [Header("Visual")]
@@ -36,9 +37,13 @@ namespace INTIFALL.Environment
         private bool _isMoving;
         private float _autoCloseTimer;
         private bool _playerInRange;
+        private bool _isEMPDisabled;
+        private float _empDisabledUntil;
+        private bool _wasLockedBeforeEMP;
 
         public bool IsOpen => _isOpen;
         public bool IsLocked => isLocked;
+        public bool IsEMPDisabled => _isEMPDisabled;
 
         private void Awake()
         {
@@ -49,25 +54,38 @@ namespace INTIFALL.Environment
         private void Update()
         {
             if (_isMoving)
-            {
                 MoveDoor();
-            }
+
+            if (_isEMPDisabled && Time.time >= _empDisabledUntil)
+                EndEMPDisruption();
 
             if (autoClose && _isOpen && !_isMoving)
             {
                 _autoCloseTimer -= Time.deltaTime;
-                if (_autoCloseTimer <= 0)
-                {
+                if (_autoCloseTimer <= 0f)
                     Close();
-                }
             }
 
             if (_playerInRange)
             {
                 if (isLocked)
-                    ShowStatus("门已锁定 - 需要钥匙卡");
-                else if (!_isOpen)
-                    ShowStatus("按 E 开门");
+                {
+                    ShowStatus(LocalizationService.Get(
+                        "door.prompt.locked",
+                        fallbackEnglish: "Door locked - keycard required",
+                        fallbackChinese: string.Empty));
+                }
+                else if (_isOpen)
+                {
+                    ShowStatus(string.Empty);
+                }
+                else
+                {
+                    ShowStatus(LocalizationService.Get(
+                        "door.prompt.open",
+                        fallbackEnglish: "Press E to open",
+                        fallbackChinese: string.Empty));
+                }
             }
             else
             {
@@ -87,17 +105,21 @@ namespace INTIFALL.Environment
                 transform.position = target;
                 _isMoving = false;
 
-                AudioSource.PlayClipAtPoint(_isOpen ? openSound : closeSound, transform.position);
+                AudioClip clip = _isOpen ? openSound : closeSound;
+                if (clip != null)
+                    AudioSource.PlayClipAtPoint(clip, transform.position);
             }
         }
 
         public void TryOpen()
         {
-            if (_isOpen || _isMoving) return;
+            if (_isOpen || _isMoving)
+                return;
 
             if (isLocked)
             {
-                AudioSource.PlayClipAtPoint(deniedSound, transform.position);
+                if (deniedSound != null)
+                    AudioSource.PlayClipAtPoint(deniedSound, transform.position);
                 return;
             }
 
@@ -106,22 +128,22 @@ namespace INTIFALL.Environment
 
         public void Open()
         {
-            if (_isOpen) return;
+            if (_isOpen)
+                return;
 
             _isOpen = true;
             _isMoving = true;
             _autoCloseTimer = autoCloseDelay;
-
             SetStatusLight(openingColor);
         }
 
         public void Close()
         {
-            if (!_isOpen || _isMoving) return;
+            if (!_isOpen || _isMoving)
+                return;
 
             _isOpen = false;
             _isMoving = true;
-
             SetStatusLight(unlockedColor);
         }
 
@@ -133,15 +155,17 @@ namespace INTIFALL.Environment
                 return true;
             }
 
-            AudioSource.PlayClipAtPoint(deniedSound, transform.position);
+            if (deniedSound != null)
+                AudioSource.PlayClipAtPoint(deniedSound, transform.position);
             return false;
         }
 
         public bool TryUnlockWithCode(string code)
         {
-            if (unlockCodes == null) return false;
+            if (unlockCodes == null)
+                return false;
 
-            foreach (var unlockCode in unlockCodes)
+            foreach (string unlockCode in unlockCodes)
             {
                 if (unlockCode == code)
                 {
@@ -150,23 +174,52 @@ namespace INTIFALL.Environment
                 }
             }
 
-            AudioSource.PlayClipAtPoint(deniedSound, transform.position);
+            if (deniedSound != null)
+                AudioSource.PlayClipAtPoint(deniedSound, transform.position);
             return false;
         }
 
         public void Unlock()
         {
-            if (!isLocked) return;
+            if (!isLocked)
+                return;
 
             isLocked = false;
             SetStatusLight(unlockedColor);
 
-            AudioSource.PlayClipAtPoint(unlockSound, transform.position);
+            if (unlockSound != null)
+                AudioSource.PlayClipAtPoint(unlockSound, transform.position);
 
             EventBus.Publish(new DoorUnlockedEvent
             {
                 doorPosition = transform.position
             });
+        }
+
+        public void ApplyEMPDisruption(float duration)
+        {
+            float safeDuration = Mathf.Max(0.1f, duration);
+
+            if (!_isEMPDisabled)
+                _wasLockedBeforeEMP = isLocked;
+
+            _isEMPDisabled = true;
+            _empDisabledUntil = Mathf.Max(_empDisabledUntil, Time.time + safeDuration);
+            isLocked = false;
+            SetStatusLight(openingColor);
+
+            if (!_isOpen && !_isMoving)
+                Open();
+        }
+
+        private void EndEMPDisruption()
+        {
+            _isEMPDisabled = false;
+
+            if (_wasLockedBeforeEMP)
+                Lock();
+            else
+                SetStatusLight(unlockedColor);
         }
 
         public void Lock()
@@ -177,7 +230,7 @@ namespace INTIFALL.Environment
 
         public void SetKeycardLevel(int level)
         {
-            requiredKeycardLevel = level;
+            requiredKeycardLevel = Mathf.Max(0, level);
         }
 
         private void OnInteract()
@@ -189,17 +242,13 @@ namespace INTIFALL.Environment
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("Player"))
-            {
                 _playerInRange = true;
-            }
         }
 
         private void OnTriggerExit(Collider other)
         {
             if (other.CompareTag("Player"))
-            {
                 _playerInRange = false;
-            }
         }
 
         private void SetStatusLight(Color color)
@@ -217,7 +266,7 @@ namespace INTIFALL.Environment
         private void HideStatus()
         {
             if (statusText != null)
-                statusText.text = "";
+                statusText.text = string.Empty;
         }
 
         public struct DoorUnlockedEvent

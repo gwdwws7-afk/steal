@@ -1,6 +1,6 @@
-using UnityEngine;
+﻿using INTIFALL.System;
 using INTIFALL.Tools;
-using INTIFALL.System;
+using UnityEngine;
 
 namespace INTIFALL.Growth
 {
@@ -19,7 +19,7 @@ namespace INTIFALL.Growth
     public class ProgressionTree : MonoBehaviour
     {
         [Header("Level Progression")]
-        [SerializeField] private int currentCompletedLevel = 0;
+        [SerializeField] private int currentCompletedLevel;
 
         [Header("Tool Unlocks")]
         [SerializeField] private string[] level1Unlocks = { "SmokeBomb", "FlashBang", "SoundBait", "SleepDart", "Rope" };
@@ -28,23 +28,33 @@ namespace INTIFALL.Growth
         [SerializeField] private string[] level4Unlocks = { "SmokeBombUpgrade", "FlashBangUpgrade", "SoundBaitUpgrade" };
         [SerializeField] private string[] level5Unlocks = { "SmokeBombMax", "SleepDartUpgrade" };
 
-        private System.Collections.Generic.Dictionary<string, int> _toolUpgradeLevels;
-        private System.Collections.Generic.HashSet<string> _unlockedTools;
+        private global::System.Collections.Generic.Dictionary<string, int> _toolUpgradeLevels;
+        private global::System.Collections.Generic.HashSet<string> _unlockedTools;
 
         public int CurrentCompletedLevel => currentCompletedLevel;
 
+        private void EnsureInitialized()
+        {
+            if (_toolUpgradeLevels == null)
+                _toolUpgradeLevels = new global::System.Collections.Generic.Dictionary<string, int>();
+            if (_unlockedTools == null)
+                _unlockedTools = new global::System.Collections.Generic.HashSet<string>();
+        }
+
         private void Awake()
         {
-            _toolUpgradeLevels = new System.Collections.Generic.Dictionary<string, int>();
-            _unlockedTools = new System.Collections.Generic.HashSet<string>();
+            EnsureInitialized();
         }
 
         public void CompleteLevel(int level)
         {
-            if (level <= currentCompletedLevel) return;
+            EnsureInitialized();
+            if (level <= currentCompletedLevel)
+                return;
+            if (level != currentCompletedLevel + 1)
+                return;
 
             currentCompletedLevel = level;
-
             UnlockToolsForLevel(level);
 
             EventBus.Publish(new LevelCompletedEvent
@@ -56,6 +66,7 @@ namespace INTIFALL.Growth
 
         private void UnlockToolsForLevel(int level)
         {
+            EnsureInitialized();
             string[] unlocks = level switch
             {
                 1 => level1Unlocks,
@@ -66,21 +77,22 @@ namespace INTIFALL.Growth
                 _ => null
             };
 
-            if (unlocks == null) return;
+            if (unlocks == null)
+                return;
 
-            foreach (var toolName in unlocks)
+            foreach (string toolName in unlocks)
             {
-                if (!_unlockedTools.Contains(toolName))
-                {
-                    _unlockedTools.Add(toolName);
-                    _toolUpgradeLevels[toolName] = 0;
+                if (_unlockedTools.Contains(toolName))
+                    continue;
 
-                    EventBus.Publish(new ToolUnlockedEvent
-                    {
-                        toolName = toolName,
-                        level = level
-                    });
-                }
+                _unlockedTools.Add(toolName);
+                _toolUpgradeLevels[toolName] = 0;
+
+                EventBus.Publish(new ToolUnlockedEvent
+                {
+                    toolName = toolName,
+                    level = level
+                });
             }
         }
 
@@ -99,11 +111,13 @@ namespace INTIFALL.Growth
 
         public bool IsToolUnlocked(string toolName)
         {
+            EnsureInitialized();
             return _unlockedTools.Contains(toolName);
         }
 
         public int GetUpgradeLevel(string toolName)
         {
+            EnsureInitialized();
             if (_toolUpgradeLevels.TryGetValue(toolName, out int level))
                 return level;
             return 0;
@@ -111,11 +125,12 @@ namespace INTIFALL.Growth
 
         public bool CanUpgrade(string toolName)
         {
-            if (!IsToolUnlocked(toolName)) return false;
+            EnsureInitialized();
+            if (!IsToolUnlocked(toolName))
+                return false;
 
             int currentLvl = GetUpgradeLevel(toolName);
             int maxLevel = GetMaxUpgradeLevel(toolName);
-
             return currentLvl < maxLevel;
         }
 
@@ -138,7 +153,9 @@ namespace INTIFALL.Growth
 
         public void UpgradeTool(string toolName)
         {
-            if (!CanUpgrade(toolName)) return;
+            EnsureInitialized();
+            if (!CanUpgrade(toolName))
+                return;
 
             int newLevel = _toolUpgradeLevels[toolName] + 1;
             _toolUpgradeLevels[toolName] = newLevel;
@@ -152,8 +169,10 @@ namespace INTIFALL.Growth
 
         public float GetToolStatBonus(string toolName, string statName)
         {
+            EnsureInitialized();
             int level = GetUpgradeLevel(toolName);
-            if (level == 0) return 0f;
+            if (level == 0)
+                return 0f;
 
             return (toolName, statName) switch
             {
@@ -172,35 +191,38 @@ namespace INTIFALL.Growth
 
         public string GetToolUpgradeName(string toolName)
         {
+            EnsureInitialized();
             int level = GetUpgradeLevel(toolName);
-            if (level == 0) return toolName;
+            if (level == 0)
+                return toolName;
 
             return (toolName, level) switch
             {
-                ("SmokeBomb", 1) => "烟雾弹·浓",
-                ("SmokeBomb", 2) => "云雾祭礼·浓",
-                ("FlashBang", 1) => "太阳刺·耀",
-                ("FlashBang", 2) => "太阳刺·极",
-                ("SoundBait", 1) => "鸦鸣石·烈",
-                ("SoundBait", 2) => "鸦鸣石·极",
-                ("SleepDart", 1) => "梦境叶·浓",
-                ("SleepDart", 2) => "梦境叶·极",
-                ("Rope", 1) => "索命结·速",
-                ("Rope", 2) => "索命结·极",
-                ("TimedNoise", 1) => "定时噪音·长",
-                ("TimedNoise", 2) => "定时噪音·极",
-                ("WallBreak", 1) => "凿石礼·速",
-                ("WallBreak", 2) => "凿石礼·极",
-                ("EMP", 1) => "EMP·充能",
-                ("EMP", 2) => "EMP·极",
-                ("Drone", 1) => "蜂群碎片·群",
-                ("Drone", 2) => "蜂群碎片·速",
+                ("SmokeBomb", 1) => "Smoke Bomb Mk2",
+                ("SmokeBomb", 2) => "Smoke Bomb Mk3",
+                ("FlashBang", 1) => "Flash Bang Mk2",
+                ("FlashBang", 2) => "Flash Bang Mk3",
+                ("SoundBait", 1) => "Sound Bait Mk2",
+                ("SoundBait", 2) => "Sound Bait Mk3",
+                ("SleepDart", 1) => "Sleep Dart Mk2",
+                ("SleepDart", 2) => "Sleep Dart Mk3",
+                ("Rope", 1) => "Rope Tool Mk2",
+                ("Rope", 2) => "Rope Tool Mk3",
+                ("TimedNoise", 1) => "Timed Noise Mk2",
+                ("TimedNoise", 2) => "Timed Noise Mk3",
+                ("WallBreak", 1) => "Wall Break Mk2",
+                ("WallBreak", 2) => "Wall Break Mk3",
+                ("EMP", 1) => "EMP Mk2",
+                ("EMP", 2) => "EMP Mk3",
+                ("Drone", 1) => "Drone Swarm Mk2",
+                ("Drone", 2) => "Drone Swarm Mk3",
                 _ => toolName
             };
         }
 
         public void ResetProgression()
         {
+            EnsureInitialized();
             currentCompletedLevel = 0;
             _toolUpgradeLevels.Clear();
             _unlockedTools.Clear();

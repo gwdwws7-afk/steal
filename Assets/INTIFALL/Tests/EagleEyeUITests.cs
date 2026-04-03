@@ -49,5 +49,20 @@ namespace INTIFALL.Tests
             _eagle.ResetIntel();
             Assert.AreEqual(0, _eagle.CurrentIntel);
         }
+
+        [Test]
+        public void SetIntelTarget_UpdatesTotalTarget()
+        {
+            _eagle.SetIntelTarget(5);
+            Assert.AreEqual(5, _eagle.TotalIntelTarget);
+        }
+
+        [Test]
+        public void SetIntelTarget_ClampsCurrentIntelToNewLimit()
+        {
+            _eagle.SetIntelCount(3);
+            _eagle.SetIntelTarget(2);
+            Assert.AreEqual(2, _eagle.CurrentIntel);
+        }
     }
 }

@@ -1,13 +1,23 @@
 using NUnit.Framework;
 using INTIFALL.Player;
 using UnityEngine;
+using System.Reflection;
 
 namespace INTIFALL.Tests
 {
     public class PlayerCombatStateMachineTests
     {
+        private static readonly MethodInfo UpdateMethod = typeof(PlayerCombatStateMachine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic);
         private PlayerCombatStateMachine _combat;
         private GameObject _go;
+
+        private static void InvokeUpdate(PlayerCombatStateMachine combat)
+        {
+            if (UpdateMethod == null)
+                throw new global::System.MissingMethodException(nameof(PlayerCombatStateMachine), "Update");
+
+            UpdateMethod.Invoke(combat, null);
+        }
 
         [SetUp]
         public void Setup()
@@ -92,7 +102,7 @@ namespace INTIFALL.Tests
             _combat.TransitionTo(ECombatMode.Combat);
 
             for (int i = 0; i < 10; i++)
-                _combat.Update();
+                InvokeUpdate(_combat);
 
             Assert.Greater(_combat.CombatTimer, 0f);
         }

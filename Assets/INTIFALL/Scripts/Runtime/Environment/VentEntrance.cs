@@ -1,4 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
+using INTIFALL.Audio;
+using INTIFALL.Input;
 using INTIFALL.Player;
 using INTIFALL.System;
 
@@ -33,16 +36,30 @@ namespace INTIFALL.Environment
 
             if (_playerInRange && !_isInside)
             {
-                ShowPrompt("按 E 进入通风管");
+                ShowPrompt(LocalizationService.Get(
+                    "vent.prompt.enter",
+                    fallbackEnglish: "Press E to enter vent",
+                    fallbackChinese: string.Empty));
             }
             else if (_isInside)
             {
-                ShowPrompt("按 E 离开通风管");
+                ShowPrompt(LocalizationService.Get(
+                    "vent.prompt.exit",
+                    fallbackEnglish: "Press E to exit vent",
+                    fallbackChinese: string.Empty));
             }
             else
-            {
                 HidePrompt();
-            }
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<InputManager.InteractEvent>(OnPlayerInteract);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<InputManager.InteractEvent>(OnPlayerInteract);
         }
 
         private void CheckPlayerProximity()
@@ -70,33 +87,27 @@ namespace INTIFALL.Environment
         private void HidePrompt()
         {
             if (uiPrompt != null)
-                uiPrompt.text = "";
+                uiPrompt.text = string.Empty;
         }
 
         public void TryEnter()
         {
-            if (!_playerInRange) return;
+            if (!_playerInRange)
+                return;
 
             if (_isInside)
-            {
                 ExitVent();
-            }
             else
-            {
                 EnterVent();
-            }
         }
 
         private void EnterVent()
         {
-            if (_player == null || _playerController == null) return;
+            if (_player == null || _playerController == null)
+                return;
 
             _isInside = true;
-
-            if (_playerController != null)
-            {
-                _playerController.AttachToRope(transform.position);
-            }
+            _playerController.AttachToRope(transform.position);
 
             if (ventCover != null)
                 ventCover.SetActive(false);
@@ -111,15 +122,12 @@ namespace INTIFALL.Environment
 
         private void ExitVent()
         {
-            if (_player == null || _playerController == null) return;
+            if (_player == null || _playerController == null)
+                return;
 
             _isInside = false;
-
-            if (_playerController != null)
-            {
-                _playerController.DetachFromRope();
-                _player.transform.position = exitPosition;
-            }
+            _playerController.DetachFromRope();
+            _player.transform.position = exitPosition;
 
             if (ventCover != null)
                 ventCover.SetActive(true);
@@ -135,6 +143,12 @@ namespace INTIFALL.Environment
         private void OnInteract()
         {
             TryEnter();
+        }
+
+        private void OnPlayerInteract(InputManager.InteractEvent evt)
+        {
+            if (_playerInRange)
+                TryEnter();
         }
 
         public struct VentEnteredEvent

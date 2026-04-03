@@ -1,4 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
+using INTIFALL.Input;
+using UnityEngine.UI;
+using INTIFALL.Audio;
 using INTIFALL.Player;
 using INTIFALL.System;
 
@@ -43,7 +46,22 @@ namespace INTIFALL.Environment
         {
             if (_playerAttached)
             {
-                ShowPrompt("按 E 脱离 / Q 绳技击杀");
+                if (_player == null || _playerController == null)
+                {
+                    Detach(detachFromController: false);
+                    return;
+                }
+
+                if (!_playerController.IsOnRope)
+                {
+                    Detach(detachFromController: false);
+                    return;
+                }
+
+                ShowPrompt(LocalizationService.Get(
+                    "hang.prompt.detach_takedown",
+                    fallbackEnglish: "Press E to detach / Q to rope takedown",
+                    fallbackChinese: string.Empty));
                 UpdatePlayerHanging();
 
                 if (Vector3.Distance(transform.position, _player.transform.position) > detachRange)
@@ -72,9 +90,12 @@ namespace INTIFALL.Environment
 
             if (distance <= attachRange && !_isOccupied)
             {
-                ShowPrompt("按 E 抓住悬挂点");
+                ShowPrompt(LocalizationService.Get(
+                    "hang.prompt.attach",
+                    fallbackEnglish: "Press E to Hang",
+                    fallbackChinese: string.Empty));
 
-                if (Input.GetKeyDown(KeyCode.E))
+                if (InputCompat.GetKeyDown(KeyCode.E))
                 {
                     Attach();
                 }
@@ -88,19 +109,7 @@ namespace INTIFALL.Environment
         private void UpdatePlayerHanging()
         {
             if (_player == null || _playerController == null) return;
-
-            float lateral = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
-
-            Vector3 lateralMove = transform.right * lateral * lateralSpeed * Time.deltaTime;
-            Vector3 ropeMove = Vector3.up * vertical * moveSpeed * Time.deltaTime;
-
-            Vector3 newPos = _player.transform.position + lateralMove + ropeMove;
-
-            if (Vector3.Distance(transform.position, newPos) <= detachRange)
-            {
-                _player.transform.position = newPos;
-            }
+            // Rope locomotion is handled by PlayerController while attached.
         }
 
         private void Attach()
@@ -125,9 +134,9 @@ namespace INTIFALL.Environment
             });
         }
 
-        private void Detach()
+        private void Detach(bool detachFromController = true)
         {
-            if (_playerController != null)
+            if (detachFromController && _playerController != null && _playerController.IsOnRope)
                 _playerController.DetachFromRope();
 
             _playerAttached = false;
@@ -155,7 +164,7 @@ namespace INTIFALL.Environment
 
                 if (toEnemy.magnitude <= enemyKillRange)
                 {
-                    if (Input.GetKeyDown(KeyCode.Q))
+                    if (InputCompat.GetKeyDown(KeyCode.Q))
                     {
                         PerformRopeKill(enemy.gameObject);
                         return;
@@ -203,3 +212,5 @@ namespace INTIFALL.Environment
         }
     }
 }
+
+

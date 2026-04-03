@@ -1,5 +1,5 @@
+﻿using INTIFALL.Growth;
 using NUnit.Framework;
-using INTIFALL.Growth;
 using UnityEngine;
 
 namespace INTIFALL.Tests
@@ -116,11 +116,11 @@ namespace INTIFALL.Tests
         [Test]
         public void GetPassiveName_ReturnsCorrectName()
         {
-            Assert.AreEqual("安第斯之息", _bloodline.GetPassiveName(EBloodlinePassive.AndesBreath));
-            Assert.AreEqual("祭司之眼", _bloodline.GetPassiveName(EBloodlinePassive.PriestEye));
-            Assert.AreEqual("黄金之血", _bloodline.GetPassiveName(EBloodlinePassive.GoldenBlood));
-            Assert.AreEqual("蚂蟥感知", _bloodline.GetPassiveName(EBloodlinePassive.LeechSense));
-            Assert.AreEqual("轮回终章", _bloodline.GetPassiveName(EBloodlinePassive.ReincarnationEnd));
+            Assert.AreEqual("Andes Breath", _bloodline.GetPassiveName(EBloodlinePassive.AndesBreath));
+            Assert.AreEqual("Priest Eye", _bloodline.GetPassiveName(EBloodlinePassive.PriestEye));
+            Assert.AreEqual("Golden Blood", _bloodline.GetPassiveName(EBloodlinePassive.GoldenBlood));
+            Assert.AreEqual("Leech Sense", _bloodline.GetPassiveName(EBloodlinePassive.LeechSense));
+            Assert.AreEqual("Reincarnation End", _bloodline.GetPassiveName(EBloodlinePassive.ReincarnationEnd));
         }
     }
 }

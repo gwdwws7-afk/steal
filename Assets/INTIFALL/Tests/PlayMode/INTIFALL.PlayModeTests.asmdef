@@ -1,0 +1,19 @@
+{
+    "name": "INTIFALL.PlayModeTests",
+    "rootNamespace": "INTIFALL.PlayModeTests",
+    "references": [
+        "INTIFALL",
+        "UnityEngine.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

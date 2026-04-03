@@ -1,7 +1,7 @@
+﻿using INTIFALL.Level;
+using INTIFALL.System;
 using UnityEngine;
 using UnityEngine.UI;
-using INTIFALL.Level;
-using INTIFALL.System;
 
 namespace INTIFALL.UI
 {
@@ -24,7 +24,7 @@ namespace INTIFALL.UI
         [SerializeField] private LevelFlowManager levelFlowManager;
 
         [Header("Briefing Content")]
-        [SerializeField] private string[] missionIds = new string[]
+        [SerializeField] private string[] missionIds =
         {
             "OP-2247-001",
             "OP-2247-002",
@@ -33,49 +33,49 @@ namespace INTIFALL.UI
             "OP-2247-005"
         };
 
-        [SerializeField] private string[] missionNames = new string[]
+        [SerializeField] private string[] missionNames =
         {
-            "黄金雨",
-            "档案迷宫",
-            "黄金血脉",
-            "Qhipu 核心",
-            "太阳陨落"
+            "Golden Rain Warehouse",
+            "Temple Archive Complex",
+            "Underground Bio-Labs",
+            "Qhipu Core Facility",
+            "General Taki Villa"
         };
 
-        [SerializeField] private string[] missionLevels = new string[]
+        [SerializeField] private string[] missionLevels =
         {
-            "机密",
-            "机密",
-            "最高机密",
-            "最高机密",
-            "最高机密"
+            "Confidential",
+            "Confidential",
+            "Top Secret",
+            "Top Secret",
+            "Top Secret"
         };
 
-        [SerializeField] private string[] backgrounds = new string[]
+        [SerializeField] private string[] backgrounds =
         {
-            "反叛组织\"Ayllu astral\"在工业区活动增加。\n总部决定由你的小队执行清剿行动。",
-            "Valleys 家族档案被发现在数据中心。\n总部命令你获取这些文件。",
-            "Aya-Tech 实验室在秘密制造强化人。\n总部要求你摧毁这个设施。",
-            "Qhipu 核心被发现在太阳殿深处。\n总部命令你回收这个古老的设备。",
-            "终局之战。Qhipu 预言即将实现。\n你的选择将决定帝国的命运。"
+            "Ayllu Astral activity has intensified around the logistics district. Command authorized a stealth breach and intel sweep.",
+            "Recovered routing logs indicate bloodline archives are stored inside this temple complex. Retrieve records and stay untracked.",
+            "Aya-Tech is running illegal augmentation trials in subterranean labs. Secure evidence and break the command chain.",
+            "The Qhipu core node controls strategic forecasts. Infiltrate the core ring and recover the final shards.",
+            "General Taki is preparing a final contingency protocol. This operation determines the end-state of the campaign."
         };
 
-        [SerializeField] private string[] objectives = new string[]
+        [SerializeField] private string[] objectives =
         {
-            "● 主要目标：抵达目标位置，消灭叛军据点\n● 次要目标：收集反叛组织情报",
-            "● 主要目标：进入数据中心，获取 Valleys 档案\n● 次要目标：绕过安保系统",
-            "● 主要目标：摧毁 Aya-Tech 实验室\n● 次要目标：获取实验证据",
-            "● 主要目标：进入 Qhipu 核心室\n● 次要目标：激活核心",
-            "● 主要目标：做出终局选择\n● 次要目标：无"
+            "Primary: Reach the warehouse control sector and secure intel.\nSecondary: Preserve stealth route integrity.",
+            "Primary: Extract archive files from the upper sanctum.\nSecondary: Bypass security without full alert.",
+            "Primary: Capture experiment logs from the lab network.\nSecondary: Avoid sustained direct firefights.",
+            "Primary: Enter the Qhipu core chamber and recover route keys.\nSecondary: Keep priest patrols disrupted.",
+            "Primary: Complete final objective and extract.\nSecondary: Execute the chosen end-state path."
         };
 
-        [SerializeField] private string[] warnings = new string[]
+        [SerializeField] private string[] warnings =
         {
-            "目标区域有 5-6 名武装人员。\n工业区有通风管道系统，可利用。",
-            "数据中心有重型防御。\n小心 Quipucamayoc 守卫。",
-            "Aya-Tech 有强化士兵（Saqueos）。\n不建议正面冲突。",
-            "Qhipu 核心室有祭司守卫。\n你的血统可能是关键。",
-            "这是终局。\n三个选择，三种命运。没有回头路。"
+            "Multiple patrol loops overlap near loading bays. Vent bypass remains the safest flank.",
+            "Archive floors are layered with reinforced sentries. Expect rapid escalation if spotted.",
+            "Saqueos units are active in lower corridors. Maintain distance and break line-of-sight quickly.",
+            "Core perimeter rotates heavy guards and priest controllers. Noise discipline is critical.",
+            "Final sector has no safe fallback. Every alarm state increases extraction risk."
         };
 
         private int _currentLevelIndex = -1;
@@ -103,8 +103,11 @@ namespace INTIFALL.UI
 
         public void ShowBriefing(int levelIndex)
         {
-            if (_isDisplayed) return;
-            if (levelIndex < 0 || levelIndex >= missionIds.Length) return;
+            if (_isDisplayed)
+                return;
+
+            if (levelIndex < 0 || levelIndex >= missionIds.Length)
+                return;
 
             _currentLevelIndex = levelIndex;
             _isDisplayed = true;
@@ -119,42 +122,114 @@ namespace INTIFALL.UI
 
         private void UpdateBriefingContent()
         {
+            string missionName = GetLocalizedEntry("briefing.mission_name", missionNames);
+            string missionLevel = GetLocalizedEntry("briefing.mission_level", missionLevels);
+            string background = GetLocalizedEntry("briefing.background", backgrounds);
+            string objective = GetLocalizedEntry("briefing.objective", objectives);
+            string warning = GetLocalizedEntry("briefing.warning", warnings);
+            string intelHint = GetIntelHint(_currentLevelIndex);
+
             if (missionIdText != null)
-                missionIdText.text = $"【任务编号】{missionIds[_currentLevelIndex]}";
+            {
+                string template = LocalizationService.Get(
+                    "briefing.line.mission_id",
+                    fallbackEnglish: "[Mission ID] {0}",
+                    fallbackChinese: string.Empty);
+                missionIdText.text = string.Format(template, missionIds[_currentLevelIndex]);
+            }
 
             if (missionNameText != null)
-                missionNameText.text = $"【任务名称】{missionNames[_currentLevelIndex]}";
+            {
+                string template = LocalizationService.Get(
+                    "briefing.line.mission_name",
+                    fallbackEnglish: "[Mission Name] {0}",
+                    fallbackChinese: string.Empty);
+                missionNameText.text = string.Format(template, missionName);
+            }
 
             if (missionLevelText != null)
-                missionLevelText.text = $"【任务等级】{missionLevels[_currentLevelIndex]}";
+            {
+                string template = LocalizationService.Get(
+                    "briefing.line.classification",
+                    fallbackEnglish: "[Classification] {0}",
+                    fallbackChinese: string.Empty);
+                missionLevelText.text = string.Format(template, missionLevel);
+            }
 
             if (backgroundText != null)
-                backgroundText.text = $"【背景】\n{backgrounds[_currentLevelIndex]}";
+            {
+                string template = LocalizationService.Get(
+                    "briefing.line.background",
+                    fallbackEnglish: "[Background]\n{0}",
+                    fallbackChinese: string.Empty);
+                backgroundText.text = string.Format(template, background);
+            }
 
             if (objectiveText != null)
-                objectiveText.text = $"【目标】\n{objectives[_currentLevelIndex]}";
+            {
+                string template = LocalizationService.Get(
+                    "briefing.line.objectives",
+                    fallbackEnglish: "[Objectives]\n{0}",
+                    fallbackChinese: string.Empty);
+                objectiveText.text = string.Format(template, objective);
+            }
 
             if (intelText != null)
-                intelText.text = $"【情报】\n{GetIntelHint(_currentLevelIndex)}";
+            {
+                string template = LocalizationService.Get(
+                    "briefing.line.intel_hint",
+                    fallbackEnglish: "[Intel Hint]\n{0}",
+                    fallbackChinese: string.Empty);
+                intelText.text = string.Format(template, intelHint);
+            }
 
             if (warningText != null)
-                warningText.text = $"【注意事项】\n{warnings[_currentLevelIndex]}";
+            {
+                string template = LocalizationService.Get(
+                    "briefing.line.warnings",
+                    fallbackEnglish: "[Warnings]\n{0}",
+                    fallbackChinese: string.Empty);
+                warningText.text = string.Format(template, warning);
+            }
 
             if (contactText != null)
-                contactText.text = $"【联络人】Willa\n━━━━━━━━━━━━━━━━━━";
+            {
+                contactText.text = LocalizationService.Get(
+                    "briefing.contact",
+                    fallbackEnglish: "[Contact] Willa\n--------------------------",
+                    fallbackChinese: string.Empty);
+            }
         }
 
-        private string GetIntelHint(int levelIndex)
+        private string GetLocalizedEntry(string keyPrefix, string[] fallbackValues)
         {
-            return levelIndex switch
+            if (fallbackValues == null || _currentLevelIndex < 0 || _currentLevelIndex >= fallbackValues.Length)
+                return string.Empty;
+
+            string key = $"{keyPrefix}.{_currentLevelIndex + 1}";
+            return LocalizationService.Get(
+                key,
+                fallbackEnglish: fallbackValues[_currentLevelIndex],
+                fallbackChinese: string.Empty);
+        }
+
+        private static string GetIntelHint(int levelIndex)
+        {
+            string fallback = levelIndex switch
             {
-                0 => "目标区域有通风管道系统，可利用。",
-                1 => "终端文档可能包含 Valleys 家族信息。",
-                2 => "实验记录存储在主终端中。",
-                3 => "Qhipu 石板碎片分散在区域各处。",
-                4 => "终局选择将影响游戏结局。",
-                _ => ""
+                0 => "Vent channels connect cargo intake to rear extraction lanes.",
+                1 => "Temple terminals contain bloodline archive breadcrumbs.",
+                2 => "Primary evidence cluster is mirrored to the central lab terminal.",
+                3 => "Qhipu fragments are distributed across ring corridors and upper control decks.",
+                4 => "Final extraction route depends on the evidence chain you carry.",
+                _ => string.Empty
             };
+
+            string key = $"briefing.intel_hint.{levelIndex + 1}";
+            return LocalizationService.Get(
+                key,
+                fallbackEnglish: fallback,
+                fallbackChinese: string.Empty);
         }
 
         private void OnStartMission()

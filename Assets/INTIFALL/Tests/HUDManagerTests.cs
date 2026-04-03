@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using INTIFALL.UI;
 using UnityEngine;
+using System.Reflection;
 
 namespace INTIFALL.Tests
 {
@@ -50,6 +51,30 @@ namespace INTIFALL.Tests
             _hud.ShowHUD();
             _hud.HideHUD();
             Assert.IsFalse(_hud.IsVisible);
+        }
+
+        [Test]
+        public void FormatObjectiveCounter_FormatsProgressTemplate()
+        {
+            string formatted = InvokeFormatObjectiveCounter("Secondary: Objectives {0}/{1}", 1, 3, "Secondary: {0}/{1}");
+            Assert.AreEqual("Secondary: Objectives 1/3", formatted);
+        }
+
+        [Test]
+        public void FormatObjectiveCounter_InvalidTemplate_FallsBack()
+        {
+            string formatted = InvokeFormatObjectiveCounter("Secondary: {2}", 2, 4, "Secondary: {0}/{1}");
+            Assert.AreEqual("Secondary: 2/4", formatted);
+        }
+
+        private static string InvokeFormatObjectiveCounter(string template, int completed, int total, string fallback)
+        {
+            MethodInfo method = typeof(HUDManager).GetMethod(
+                "FormatObjectiveCounter",
+                BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(method, "Missing HUDManager.FormatObjectiveCounter.");
+
+            return (string)method.Invoke(null, new object[] { template, completed, total, fallback });
         }
     }
 }

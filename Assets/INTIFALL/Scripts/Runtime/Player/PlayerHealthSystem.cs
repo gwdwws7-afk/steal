@@ -54,40 +54,128 @@ namespace INTIFALL.Player
         private float _firstAidDelayTimer;
         private bool _isDead;
         private int _forcedRevivesRemaining;
+        private bool _initialized;
 
-        public int MaxHP => maxHP;
-        public int CurrentHP => currentHP;
-        public int FirstAidCount => firstAidCount;
-        public bool IsDead => _isDead;
-        public bool IsUsingFirstAid => _isUsingFirstAid;
-        public bool CanUseFirstAid => firstAidCount > 0 && currentHP < maxHP && !_isUsingFirstAid && _firstAidDelayTimer <= 0;
+        public int MaxHP
+        {
+            get
+            {
+                EnsureInitialized();
+                return maxHP;
+            }
+        }
 
-        public float FirstAidProgress => _isUsingFirstAid ? _firstAidChannelTimer / firstAidChannelTime : 0f;
-        public float FirstAidDelayRemaining => _firstAidDelayTimer;
+        public int CurrentHP
+        {
+            get
+            {
+                EnsureInitialized();
+                return currentHP;
+            }
+        }
+
+        public int FirstAidCount
+        {
+            get
+            {
+                EnsureInitialized();
+                return firstAidCount;
+            }
+        }
+
+        public bool IsDead
+        {
+            get
+            {
+                EnsureInitialized();
+                return _isDead;
+            }
+        }
+
+        public bool IsUsingFirstAid
+        {
+            get
+            {
+                EnsureInitialized();
+                return _isUsingFirstAid;
+            }
+        }
+
+        public bool CanUseFirstAid
+        {
+            get
+            {
+                EnsureInitialized();
+                return firstAidCount > 0 && currentHP < maxHP && !_isUsingFirstAid && _firstAidDelayTimer <= 0f;
+            }
+        }
+
+        public float FirstAidProgress
+        {
+            get
+            {
+                EnsureInitialized();
+                return _isUsingFirstAid ? _firstAidChannelTimer / firstAidChannelTime : 0f;
+            }
+        }
+
+        public float FirstAidDelayRemaining
+        {
+            get
+            {
+                EnsureInitialized();
+                return _firstAidDelayTimer;
+            }
+        }
+
+        private void EnsureInitialized()
+        {
+            if (_initialized) return;
+
+            if (maxHP <= 0)
+                maxHP = 1;
+
+            if (currentHP <= 0)
+                currentHP = maxHP;
+
+            _forcedRevivesRemaining = forcedReviveCount;
+            forcedReviveAvailable = _forcedRevivesRemaining > 0;
+            _initialized = true;
+        }
+
+        private static float ResolveDeltaTime()
+        {
+            if (!Application.isPlaying)
+                return 0.1f;
+
+            return Time.deltaTime;
+        }
 
         private void Awake()
         {
-            currentHP = maxHP;
-            _forcedRevivesRemaining = forcedReviveCount;
+            EnsureInitialized();
         }
 
         private void Update()
         {
+            EnsureInitialized();
             UpdateTimers();
             CheckForcedRevive();
         }
 
         private void UpdateTimers()
         {
+            float delta = ResolveDeltaTime();
+
             if (_invincibilityTimer > 0)
-                _invincibilityTimer -= Time.deltaTime;
+                _invincibilityTimer -= delta;
 
             if (_firstAidDelayTimer > 0)
-                _firstAidDelayTimer -= Time.deltaTime;
+                _firstAidDelayTimer -= delta;
 
             if (_isUsingFirstAid)
             {
-                _firstAidChannelTimer += Time.deltaTime;
+                _firstAidChannelTimer += delta;
                 if (_firstAidChannelTimer >= firstAidChannelTime)
                 {
                     CompleteFirstAid();
@@ -105,6 +193,7 @@ namespace INTIFALL.Player
 
         public void TakeDamage(int amount, int damageSourceId = 0)
         {
+            EnsureInitialized();
             if (_isDead) return;
             if (_invincibilityTimer > 0) return;
 
@@ -128,6 +217,7 @@ namespace INTIFALL.Player
 
         public void Heal(int amount)
         {
+            EnsureInitialized();
             if (_isDead) return;
 
             int oldHP = currentHP;
@@ -148,6 +238,7 @@ namespace INTIFALL.Player
 
         public void StartFirstAid()
         {
+            EnsureInitialized();
             if (!CanUseFirstAid) return;
 
             _isUsingFirstAid = true;
@@ -156,6 +247,7 @@ namespace INTIFALL.Player
 
         public void CancelFirstAid()
         {
+            EnsureInitialized();
             _isUsingFirstAid = false;
             _firstAidChannelTimer = 0f;
         }
@@ -205,6 +297,7 @@ namespace INTIFALL.Player
 
         public void ResetForLevel()
         {
+            EnsureInitialized();
             currentHP = maxHP;
             firstAidCount = 5;
             _isUsingFirstAid = false;

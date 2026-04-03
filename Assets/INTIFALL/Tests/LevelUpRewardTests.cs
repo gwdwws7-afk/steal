@@ -72,5 +72,35 @@ namespace INTIFALL.Tests
         {
             Assert.AreEqual(1, _reward.GetCurrentLevel());
         }
+
+        [Test]
+        public void EvaluateRankScore_PerfectMission_Returns5()
+        {
+            int rank = LevelUpReward.EvaluateRankScore(true, true, 2, 3, 90f);
+            Assert.AreEqual(5, rank);
+        }
+
+        [Test]
+        public void EvaluateCredits_WithBonuses_IsGreaterThanBase()
+        {
+            int totalCredits = LevelUpReward.EvaluateCredits(3, true, true, 2, 3, 120f);
+            Assert.Greater(totalCredits, 200);
+        }
+
+        [Test]
+        public void EvaluateCredits_RankSpread_IsClearlySeparated()
+        {
+            int sRank = LevelUpReward.EvaluateCredits(5, false, false, 0, 0, 0f);
+            int aRank = LevelUpReward.EvaluateCredits(4, false, false, 0, 0, 0f);
+            int bRank = LevelUpReward.EvaluateCredits(3, false, false, 0, 0, 0f);
+            int cRank = LevelUpReward.EvaluateCredits(2, false, false, 0, 0, 0f);
+
+            Assert.Greater(sRank, aRank);
+            Assert.Greater(aRank, bRank);
+            Assert.Greater(bRank, cRank);
+            Assert.GreaterOrEqual(sRank - aRank, 200);
+            Assert.GreaterOrEqual(aRank - bRank, 180);
+            Assert.GreaterOrEqual(bRank - cRank, 120);
+        }
     }
 }

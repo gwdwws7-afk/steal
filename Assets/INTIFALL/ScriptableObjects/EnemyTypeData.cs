@@ -1,3 +1,4 @@
+﻿using INTIFALL.System;
 using UnityEngine;
 
 namespace INTIFALL.AI
@@ -8,6 +9,9 @@ namespace INTIFALL.AI
         [Header("Identity")]
         public EEnemyType enemyType;
         public string displayName;
+        public string displayNameEnglish;
+        public string displayNameChinese;
+        public string localizationKey;
 
         [Header("Combat Stats")]
         public int hp = 1;
@@ -35,8 +39,8 @@ namespace INTIFALL.AI
         [Header("Behavior Flags")]
         public bool canPatrol = true;
         public bool canChase = true;
-        public bool canCallReinforcements = false;
-        public bool isInvisibleToStealth = false;
+        public bool canCallReinforcements;
+        public bool isInvisibleToStealth;
 
         public static EnemyTypeData GetDefaultData(EEnemyType type)
         {
@@ -46,7 +50,9 @@ namespace INTIFALL.AI
             switch (type)
             {
                 case EEnemyType.Normal:
-                    data.displayName = "普通士兵";
+                    data.displayNameEnglish = "Guard";
+                    data.displayNameChinese = "普通士兵";
+                    data.localizationKey = "enemy.guard";
                     data.hp = 1;
                     data.damage = 1;
                     data.walkSpeed = 2.5f;
@@ -61,7 +67,9 @@ namespace INTIFALL.AI
                     break;
 
                 case EEnemyType.Reinforced:
-                    data.displayName = "强化士兵";
+                    data.displayNameEnglish = "Reinforced Guard";
+                    data.displayNameChinese = "强化士兵";
+                    data.localizationKey = "enemy.reinforced_guard";
                     data.hp = 2;
                     data.damage = 1;
                     data.walkSpeed = 3f;
@@ -76,7 +84,9 @@ namespace INTIFALL.AI
                     break;
 
                 case EEnemyType.Heavy:
-                    data.displayName = "重型兵";
+                    data.displayNameEnglish = "Heavy Guard";
+                    data.displayNameChinese = "重型兵";
+                    data.localizationKey = "enemy.heavy_guard";
                     data.hp = 3;
                     data.damage = 2;
                     data.walkSpeed = 1.5f;
@@ -92,7 +102,9 @@ namespace INTIFALL.AI
                     break;
 
                 case EEnemyType.Quipucamayoc:
-                    data.displayName = "祭司";
+                    data.displayNameEnglish = "Quipucamayoc";
+                    data.displayNameChinese = "祭司";
+                    data.localizationKey = "enemy.quipucamayoc";
                     data.hp = 1;
                     data.damage = 1;
                     data.walkSpeed = 2.5f;
@@ -107,7 +119,9 @@ namespace INTIFALL.AI
                     break;
 
                 case EEnemyType.Saqueos:
-                    data.displayName = "Saqueos";
+                    data.displayNameEnglish = "Saqueos";
+                    data.displayNameChinese = "噬掠者";
+                    data.localizationKey = "enemy.saqueos";
                     data.hp = 2;
                     data.damage = 1;
                     data.walkSpeed = 3.5f;
@@ -124,7 +138,21 @@ namespace INTIFALL.AI
                     break;
             }
 
+            data.displayName = data.displayNameEnglish;
             return data;
+        }
+
+        public string GetDisplayName(SystemLanguage language)
+        {
+            string localized = LocalizationService.Get(
+                localizationKey,
+                fallbackEnglish: displayNameEnglish,
+                fallbackChinese: displayNameChinese,
+                languageOverride: language);
+            if (!string.IsNullOrWhiteSpace(localized))
+                return localized;
+
+            return displayName;
         }
     }
 }

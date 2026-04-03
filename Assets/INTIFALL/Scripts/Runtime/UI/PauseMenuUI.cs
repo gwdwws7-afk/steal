@@ -1,4 +1,5 @@
 using UnityEngine;
+using INTIFALL.Input;
 using UnityEngine.UI;
 using INTIFALL.System;
 
@@ -46,7 +47,7 @@ namespace INTIFALL.UI
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (InputCompat.GetKeyDown(KeyCode.Escape))
             {
                 TogglePause();
             }

@@ -1,3 +1,4 @@
+using INTIFALL.Player;
 using UnityEngine;
 
 namespace INTIFALL.AI
@@ -29,22 +30,39 @@ namespace INTIFALL.AI
         private Transform _currentTarget;
         private Vector3 _lastSeenPosition;
 
+        private void Start()
+        {
+            if (eyes == null)
+                eyes = transform;
+
+            if (_currentTarget == null)
+            {
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null)
+                    _currentTarget = player.transform;
+            }
+        }
+
         public bool CanSeeTarget()
         {
-            if (_currentTarget == null) return false;
-            if (IsInVisionCone(_currentTarget.position))
-            {
-                if (HasLineOfSight(_currentTarget.position))
-                {
-                    if (IsInShadow(_currentTarget.position))
-                    {
-                        return Random.value > shadowDetectionPenalty;
-                    }
-                    _lastSeenPosition = _currentTarget.position;
-                    return true;
-                }
-            }
-            return false;
+            if (_currentTarget == null)
+                return false;
+
+            Vector3 targetPos = _currentTarget.position;
+            if (!IsInVisionCone(targetPos))
+                return false;
+
+            if (!HasLineOfSight(targetPos))
+                return false;
+
+            Transform eyeTransform = eyes != null ? eyes : transform;
+            float distance = Vector3.Distance(eyeTransform.position, targetPos);
+            float effectiveDistance = GetEffectiveVisionDistance(targetPos);
+            if (distance > effectiveDistance)
+                return false;
+
+            _lastSeenPosition = targetPos;
+            return true;
         }
 
         public bool IsInShadow(Vector3 targetPos)
@@ -94,15 +112,17 @@ namespace INTIFALL.AI
 
         public bool IsInVisionCone(Vector3 targetPos)
         {
-            Vector3 directionToTarget = targetPos - eyes.position;
+            Transform eyeTransform = eyes != null ? eyes : transform;
+            Vector3 directionToTarget = targetPos - eyeTransform.position;
             float distance = directionToTarget.magnitude;
 
-            if (distance > visionDistance) return false;
+            if (distance > visionDistance)
+                return false;
 
             directionToTarget.y = 0;
             directionToTarget.Normalize();
 
-            Vector3 forward = eyes.forward;
+            Vector3 forward = eyeTransform.forward;
             forward.y = 0;
             forward.Normalize();
 
@@ -112,15 +132,28 @@ namespace INTIFALL.AI
 
         public bool HasLineOfSight(Vector3 targetPos)
         {
-            Vector3 direction = targetPos - eyes.position;
+            Transform eyeTransform = eyes != null ? eyes : transform;
+            Vector3 direction = targetPos - eyeTransform.position;
             float distance = direction.magnitude;
 
-            if (Physics.Raycast(eyes.position, direction.normalized, out RaycastHit hit, distance, obstructionLayer))
+            if (Physics.Raycast(eyeTransform.position, direction.normalized, out RaycastHit hit, distance, obstructionLayer))
             {
                 return hit.transform == _currentTarget;
             }
 
             return true;
+        }
+
+        public bool CanHearCurrentTarget()
+        {
+            if (_currentTarget == null)
+                return false;
+
+            var player = _currentTarget.GetComponent<PlayerController>();
+            bool isSprinting = player != null && player.IsSprinting;
+            bool isCrouching = player != null && player.IsCrouching;
+
+            return CanHearTarget(_currentTarget.position, isSprinting, isCrouching);
         }
 
         public bool IsInCommunicationRange(Vector3 targetPos)
@@ -150,20 +183,72 @@ namespace INTIFALL.AI
 
         public void SetVisionDistance(float distance)
         {
-            visionDistance = distance;
+            visionDistance = Mathf.Max(0.1f, distance);
         }
 
         public void SetVisionAngle(float angle)
         {
-            visionAngle = angle;
+            visionAngle = Mathf.Clamp(angle, 1f, 179f);
+        }
+
+        public void ConfigurePerceptionProfile(
+            float visionDistanceMeters,
+            float visionAngleDegrees,
+            float crouchVisionMultiplierValue,
+            float shadowLuxThresholdValue,
+            float shadowDetectionPenaltyValue,
+            float walkSoundRadiusMeters,
+            float runSoundRadiusMeters,
+            float crouchSoundRadiusMeters,
+            float communicationRangeMeters)
+        {
+            visionDistance = Mathf.Max(0.1f, visionDistanceMeters);
+            visionAngle = Mathf.Clamp(visionAngleDegrees, 1f, 179f);
+            crouchVisionMultiplier = Mathf.Clamp(crouchVisionMultiplierValue, 0.1f, 1f);
+            shadowLuxThreshold = Mathf.Max(0f, shadowLuxThresholdValue);
+            shadowDetectionPenalty = Mathf.Clamp01(shadowDetectionPenaltyValue);
+            walkSoundRadius = Mathf.Max(0.1f, walkSoundRadiusMeters);
+            runSoundRadius = Mathf.Max(walkSoundRadius, runSoundRadiusMeters);
+            crouchSoundRadius = Mathf.Clamp(crouchSoundRadiusMeters, 0.05f, runSoundRadius);
+            commRange = Mathf.Max(0f, communicationRangeMeters);
         }
 
         public float GetVisionDistance() => visionDistance;
         public float GetVisionAngle() => visionAngle;
+        public float CrouchVisionMultiplier => crouchVisionMultiplier;
+        public float ShadowLuxThreshold => shadowLuxThreshold;
+        public float ShadowDetectionPenalty => shadowDetectionPenalty;
+        public float WalkSoundRadius => walkSoundRadius;
+        public float RunSoundRadius => runSoundRadius;
+        public float CrouchSoundRadius => crouchSoundRadius;
+        public float CommunicationRange => commRange;
 
         public void ApplyEMPEffect(float duration)
         {
             StartCoroutine(EMPEffectCoroutine(duration));
+        }
+
+        private float GetEffectiveVisionDistance(Vector3 targetPos)
+        {
+            float visibilityMultiplier = 1f;
+
+            if (IsCurrentTargetCrouching())
+                visibilityMultiplier *= crouchVisionMultiplier;
+
+            if (IsInShadow(targetPos))
+                visibilityMultiplier *= 1f - shadowDetectionPenalty;
+
+            visibilityMultiplier = Mathf.Clamp(visibilityMultiplier, 0.05f, 1f);
+            return visionDistance * visibilityMultiplier;
+        }
+
+        private bool IsCurrentTargetCrouching()
+        {
+            if (_currentTarget == null)
+                return false;
+
+            PlayerController player = _currentTarget.GetComponent<PlayerController>();
+            return player != null && player.IsCrouching;
         }
 
         private global::System.Collections.IEnumerator EMPEffectCoroutine(float duration)

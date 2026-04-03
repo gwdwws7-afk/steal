@@ -10,6 +10,7 @@ namespace INTIFALL.Tools
         public string toolNameCN;
         public EToolCategory category;
         public EToolSlot defaultSlot;
+        [Min(1)] public int slotCost = 1;
 
         [Header("Combat Stats")]
         public int damage;
@@ -33,5 +34,8 @@ namespace INTIFALL.Tools
         [Header("Display")]
         public Sprite icon;
         public string description;
+
+        [Header("Runtime")]
+        public GameObject runtimePrefab;
     }
 }

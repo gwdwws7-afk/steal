@@ -27,26 +27,28 @@ namespace INTIFALL.Level
         [Header("Level Configuration")]
         [SerializeField] private string[] levelSceneNames = new string[]
         {
-            "Level_01",
-            "Level_02",
-            "Level_03",
-            "Level_04",
-            "Level_05"
+            "Level01_Qhapaq_Passage",
+            "Level02_Temple_Complex",
+            "Level03_Underground_Labs",
+            "Level04_Qhipu_Core",
+            "Level05_General_Taki_Villa"
         };
 
         [SerializeField] private string[] levelDisplayNames = new string[]
         {
-            "黄金雨",
-            "档案迷宫",
-            "黄金血脉",
-            "Qhipu 核心",
-            "太阳陨落"
+            "Golden Ruins",
+            "Archive Maze",
+            "Golden Bloodline",
+            "Qhipu Core",
+            "Solar Fall"
         };
 
         [Header("Current State")]
         [SerializeField] private int _currentLevelIndex = 0;
         [SerializeField] private int _highestUnlockedLevel = 1;
 
+        private const string MainMenuSceneName = "MainMenu";
+        private const string MainMenuFallbackSceneName = "TerminalScene";
         private bool _isTransitioning;
 
         public int CurrentLevelIndex => _currentLevelIndex;
@@ -63,6 +65,7 @@ namespace INTIFALL.Level
         private void LoadProgress()
         {
             _highestUnlockedLevel = PlayerPrefs.GetInt("INTIFALL_HighestLevel", 1);
+            _highestUnlockedLevel = Mathf.Clamp(_highestUnlockedLevel, 1, levelSceneNames.Length);
         }
 
         public void SaveProgress()
@@ -87,6 +90,7 @@ namespace INTIFALL.Level
 
         public bool IsLevelUnlocked(int index)
         {
+            if (index < 0 || index >= levelSceneNames.Length) return false;
             return index < _highestUnlockedLevel;
         }
 
@@ -110,6 +114,12 @@ namespace INTIFALL.Level
 
             _isTransitioning = true;
             string sceneName = levelSceneNames[_currentLevelIndex];
+            if (!CanLoadScene(sceneName))
+            {
+                Debug.LogError($"LevelFlowManager: scene '{sceneName}' cannot be loaded.");
+                _isTransitioning = false;
+                return;
+            }
 
             EventBus.Publish(new LevelLoadedEvent
             {
@@ -133,9 +143,10 @@ namespace INTIFALL.Level
             if (_currentLevelIndex + 1 < levelSceneNames.Length)
             {
                 int nextLevel = _currentLevelIndex + 1;
-                if (nextLevel > _highestUnlockedLevel)
+                int unlockedCount = nextLevel + 1;
+                if (unlockedCount > _highestUnlockedLevel)
                 {
-                    _highestUnlockedLevel = nextLevel;
+                    _highestUnlockedLevel = unlockedCount;
                     SaveProgress();
                 }
             }
@@ -145,7 +156,24 @@ namespace INTIFALL.Level
         {
             if (_isTransitioning) return;
             _isTransitioning = true;
-            SceneManager.LoadScene("MainMenu");
+
+            if (CanLoadScene(MainMenuSceneName))
+            {
+                SceneManager.LoadScene(MainMenuSceneName);
+            }
+            else if (CanLoadScene(MainMenuFallbackSceneName))
+            {
+                SceneManager.LoadScene(MainMenuFallbackSceneName);
+            }
+            else if (SceneManager.sceneCountInBuildSettings > 0)
+            {
+                SceneManager.LoadScene(0);
+            }
+            else
+            {
+                Debug.LogError("LevelFlowManager: no loadable scene found for main menu.");
+            }
+
             _isTransitioning = false;
         }
 
@@ -161,16 +189,26 @@ namespace INTIFALL.Level
         public void RestartCurrentLevel()
         {
             if (_isTransitioning) return;
+            if (_currentLevelIndex < 0 || _currentLevelIndex >= levelSceneNames.Length) return;
+
+            string sceneName = levelSceneNames[_currentLevelIndex];
+            if (!CanLoadScene(sceneName))
+            {
+                Debug.LogError($"LevelFlowManager: cannot restart missing scene '{sceneName}'.");
+                return;
+            }
+
             _isTransitioning = true;
-            SceneManager.LoadScene(levelSceneNames[_currentLevelIndex]);
+            SceneManager.LoadScene(sceneName);
             _isTransitioning = false;
         }
 
         public void UnlockLevel(int index)
         {
-            if (index > _highestUnlockedLevel)
+            int clamped = Mathf.Clamp(index, 1, levelSceneNames.Length);
+            if (clamped > _highestUnlockedLevel)
             {
-                _highestUnlockedLevel = index;
+                _highestUnlockedLevel = clamped;
                 SaveProgress();
             }
         }
@@ -190,6 +228,12 @@ namespace INTIFALL.Level
                     return i;
             }
             return -1;
+        }
+
+        private static bool CanLoadScene(string sceneName)
+        {
+            return !string.IsNullOrEmpty(sceneName) &&
+                   Application.CanStreamedLevelBeLoaded(sceneName);
         }
     }
 }

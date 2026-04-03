@@ -14,7 +14,6 @@ namespace INTIFALL.Tests
         {
             _go = new GameObject("CQCSystem");
             _cqc = _go.AddComponent<CQCSystem>();
-            _cqc.eyes = _go.transform;
         }
 
         [TearDown]
