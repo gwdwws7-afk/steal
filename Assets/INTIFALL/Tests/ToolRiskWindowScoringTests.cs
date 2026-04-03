@@ -111,6 +111,32 @@ namespace INTIFALL.Tests
             Assert.Greater(smokeAndBait.ToolRiskWindowAdjustment, ropeOnly.ToolRiskWindowAdjustment);
         }
 
+        [Test]
+        public void HighRisk_SingleToolDominance_IsPenalizedVersusMixedToolkit()
+        {
+            MissionResult dominated = EvaluateOptionalRoute(
+                routeRiskTier: 3,
+                routeMultiplier: 1.25f,
+                publishTools: () =>
+                {
+                    for (int i = 0; i < 6; i++)
+                        PublishToolUse("Rope", EToolCategory.Environmental, 4f);
+                });
+
+            MissionResult mixed = EvaluateOptionalRoute(
+                routeRiskTier: 3,
+                routeMultiplier: 1.25f,
+                publishTools: () =>
+                {
+                    PublishToolUse("Rope", EToolCategory.Environmental, 5f);
+                    PublishToolUse("SmokeBomb", EToolCategory.PerceptionDisrupt, 14f);
+                    PublishToolUse("SoundBait", EToolCategory.AttentionShift, 8f);
+                });
+
+            Assert.Less(dominated.ToolRiskWindowAdjustment, mixed.ToolRiskWindowAdjustment);
+            Assert.Less(dominated.CreditsEarned, mixed.CreditsEarned);
+        }
+
         private MissionResult EvaluateOptionalRoute(
             int routeRiskTier,
             float routeMultiplier,

@@ -65,6 +65,16 @@ namespace INTIFALL.Tests
         }
 
         [Test]
+        public void InvestigateSound_BroadcastsLowPriorityAlertToNearbySquad()
+        {
+            _source.InvestigateSound(new Vector3(3f, 0f, 3f));
+
+            Assert.AreEqual(EEnemyState.Suspicious, _source.StateMachine.CurrentState, "Source should enter suspicious on sound investigation.");
+            Assert.AreEqual(EEnemyState.Suspicious, _listener.StateMachine.CurrentState, "Nearby squadmate should receive low-priority squad alert.");
+            Assert.AreEqual(EEnemyState.Unaware, _far.StateMachine.CurrentState, "Out-of-range squadmate should remain unaware.");
+        }
+
+        [Test]
         public void UnregisterDestroyedEnemies_PurgesInvalidEntries()
         {
             Assert.GreaterOrEqual(EnemySquadCoordinator.ActiveEnemyCount, 3);

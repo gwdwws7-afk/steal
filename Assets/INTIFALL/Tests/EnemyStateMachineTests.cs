@@ -1,5 +1,7 @@
 using NUnit.Framework;
 using INTIFALL.AI;
+using INTIFALL.Environment;
+using INTIFALL.System;
 using UnityEngine;
 
 namespace INTIFALL.Tests
@@ -169,6 +171,69 @@ namespace INTIFALL.Tests
             Assert.AreEqual(34f, _sm.FullAlertMissionFailDelay, 0.001f);
             Assert.AreEqual(1.4f, _sm.AlertDropToSearchDelay, 0.001f);
             Assert.AreEqual(2.6f, _sm.SuspiciousDuration, 0.001f);
+        }
+
+        [Test]
+        public void TerminalAlertSuppressedEvent_FromFullAlert_TransitionsToSearching()
+        {
+            InvokeLifecycle(_sm, "OnEnable");
+            try
+            {
+                _sm.TransitionTo(EEnemyState.FullAlert);
+                Assert.AreEqual(EEnemyState.FullAlert, _sm.CurrentState);
+
+                EventBus.Publish(new TerminalAlertSuppressedEvent
+                {
+                    sourceTerminalId = "terminal_qa",
+                    levelIndex = 0,
+                    durationSeconds = 8f,
+                    sourcePosition = Vector3.zero,
+                    effectRadiusMeters = 20f,
+                    waveId = 7
+                });
+
+                Assert.AreEqual(EEnemyState.Searching, _sm.CurrentState);
+            }
+            finally
+            {
+                InvokeLifecycle(_sm, "OnDisable");
+            }
+        }
+
+        [Test]
+        public void TerminalAlertSuppressedEvent_OutOfRange_DoesNotChangeState()
+        {
+            InvokeLifecycle(_sm, "OnEnable");
+            try
+            {
+                _sm.transform.position = new Vector3(50f, 0f, 0f);
+                _sm.TransitionTo(EEnemyState.Alert);
+
+                EventBus.Publish(new TerminalAlertSuppressedEvent
+                {
+                    sourceTerminalId = "terminal_far",
+                    levelIndex = 0,
+                    durationSeconds = 8f,
+                    sourcePosition = Vector3.zero,
+                    effectRadiusMeters = 10f,
+                    waveId = 2
+                });
+
+                Assert.AreEqual(EEnemyState.Alert, _sm.CurrentState);
+            }
+            finally
+            {
+                InvokeLifecycle(_sm, "OnDisable");
+            }
+        }
+
+        private static void InvokeLifecycle(EnemyStateMachine target, string methodName)
+        {
+            var method = typeof(EnemyStateMachine).GetMethod(
+                methodName,
+                global::System.Reflection.BindingFlags.Instance | global::System.Reflection.BindingFlags.NonPublic);
+            Assert.IsNotNull(method, $"Missing lifecycle method {methodName}.");
+            method.Invoke(target, null);
         }
     }
 }

@@ -243,6 +243,45 @@ namespace INTIFALL.Tests
             Assert.AreEqual("Rank N/A (0) Credits 0", resolved);
         }
 
+        [Test]
+        public void NarrativeTriggered_ScriptedWarningToken_TriggersWarning()
+        {
+            InvokePrivateHandler("OnNarrativeTriggered", new NarrativeTriggeredEvent
+            {
+                eventType = ENarrativeEventType.ScriptedTrigger,
+                eventId = "warning",
+                levelIndex = 1
+            });
+
+            Assert.IsTrue(_willa.IsDisplaying);
+        }
+
+        [Test]
+        public void NarrativeTriggered_ScriptedStoryToken_TriggersStoryReveal()
+        {
+            InvokePrivateHandler("OnNarrativeTriggered", new NarrativeTriggeredEvent
+            {
+                eventType = ENarrativeEventType.ScriptedTrigger,
+                eventId = "story_reveal",
+                levelIndex = 2
+            });
+
+            Assert.IsTrue(_willa.IsDisplaying);
+        }
+
+        [Test]
+        public void NarrativeTriggered_ScriptedBetrayalToken_TriggersBetrayal()
+        {
+            InvokePrivateHandler("OnNarrativeTriggered", new NarrativeTriggeredEvent
+            {
+                eventType = ENarrativeEventType.ScriptedTrigger,
+                eventId = "betrayal",
+                levelIndex = 3
+            });
+
+            Assert.IsTrue(_willa.IsDisplaying);
+        }
+
         private void InvokePrivateHandler<T>(string methodName, T eventValue)
         {
             var method = typeof(WillaComm).GetMethod(methodName, global::System.Reflection.BindingFlags.Instance | global::System.Reflection.BindingFlags.NonPublic);

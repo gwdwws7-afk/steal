@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using INTIFALL.Input;
 using INTIFALL.System;
 
 namespace INTIFALL.Environment
@@ -49,6 +50,16 @@ namespace INTIFALL.Environment
         {
             _closedPosition = transform.position;
             _openPosition = _closedPosition + Vector3.up * openHeight;
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<InputManager.InteractEvent>(OnPlayerInteract);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<InputManager.InteractEvent>(OnPlayerInteract);
         }
 
         private void Update()
@@ -234,6 +245,12 @@ namespace INTIFALL.Environment
         }
 
         private void OnInteract()
+        {
+            if (_playerInRange)
+                TryOpen();
+        }
+
+        private void OnPlayerInteract(InputManager.InteractEvent evt)
         {
             if (_playerInRange)
                 TryOpen();

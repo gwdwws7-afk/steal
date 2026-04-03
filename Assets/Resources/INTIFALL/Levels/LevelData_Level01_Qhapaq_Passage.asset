@@ -41,8 +41,8 @@ MonoBehaviour:
   quipucamayocCount: 0
   saqueosCount: 0
   qhipuFragmentCount: 3
-  terminalCount: 2
-  supplyPointCount: 5
+  terminalCount: 3
+  supplyPointCount: 6
   baseAlertDuration: 4.5
   searchDuration: 8
   fullAlertDuration: 26

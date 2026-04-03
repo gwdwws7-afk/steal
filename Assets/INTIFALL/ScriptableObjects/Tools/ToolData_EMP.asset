@@ -19,10 +19,10 @@ MonoBehaviour:
   slotCost: 2
   damage: 0
   range: 7
-  cooldown: 24
+  cooldown: 22
   duration: 10
   maxAmmo: 2
-  energyCost: 18
+  energyCost: 16
   upgradePrice: 240
   upgradedVersion: {fileID: 0}
   unlockedByDefault: 0

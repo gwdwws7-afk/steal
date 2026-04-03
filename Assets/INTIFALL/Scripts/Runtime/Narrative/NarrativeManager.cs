@@ -9,7 +9,8 @@ namespace INTIFALL.Narrative
         QhipuVision,
         TerminalDocument,
         BloodlineResonance,
-        EndingChoice
+        EndingChoice,
+        ScriptedTrigger
     }
 
     public struct NarrativeTriggeredEvent
@@ -17,6 +18,15 @@ namespace INTIFALL.Narrative
         public ENarrativeEventType eventType;
         public string eventId;
         public int levelIndex;
+    }
+
+    public struct TerminalDocumentReadEvent
+    {
+        public string terminalId;
+        public int levelIndex;
+        public string title;
+        public string summary;
+        public string advancedTrigger;
     }
 
     public class NarrativeManager : MonoBehaviour
@@ -76,6 +86,16 @@ namespace INTIFALL.Narrative
 
         public void ReadTerminal(string terminalId, int levelIndex)
         {
+            ReadTerminal(terminalId, levelIndex, terminalId, string.Empty, null);
+        }
+
+        public void ReadTerminal(
+            string terminalId,
+            int levelIndex,
+            string fallbackTitle,
+            string fallbackSummary,
+            string[] fallbackScriptedTriggers)
+        {
             string key = BuildProgressKey(terminalId, levelIndex);
             if (string.IsNullOrEmpty(key))
                 return;
@@ -85,12 +105,34 @@ namespace INTIFALL.Narrative
 
             _readTerminalKeys.Add(key);
 
+            bool hasCatalogEntry = TerminalDocumentCatalog.TryGet(terminalId, levelIndex, out TerminalDocumentRecord documentRecord);
+            string resolvedTitle = hasCatalogEntry
+                ? documentRecord.Title
+                : (string.IsNullOrWhiteSpace(fallbackTitle) ? terminalId : fallbackTitle.Trim());
+            string resolvedSummary = hasCatalogEntry
+                ? documentRecord.Summary
+                : (string.IsNullOrWhiteSpace(fallbackSummary) ? string.Empty : fallbackSummary.Trim());
+            string advancedTrigger = hasCatalogEntry
+                ? documentRecord.AdvancedTrigger
+                : JoinTriggers(fallbackScriptedTriggers);
+
+            EventBus.Publish(new TerminalDocumentReadEvent
+            {
+                terminalId = terminalId,
+                levelIndex = levelIndex,
+                title = resolvedTitle,
+                summary = resolvedSummary,
+                advancedTrigger = advancedTrigger
+            });
+
             EventBus.Publish(new NarrativeTriggeredEvent
             {
                 eventType = ENarrativeEventType.TerminalDocument,
                 eventId = terminalId,
                 levelIndex = levelIndex
             });
+
+            PublishScriptedTriggers(advancedTrigger, levelIndex);
         }
 
         public void TriggerBloodlineResonance()
@@ -193,6 +235,53 @@ namespace INTIFALL.Narrative
                 string key = snapshot[i];
                 if (key.StartsWith(prefix, global::System.StringComparison.Ordinal))
                     set.Remove(key);
+            }
+        }
+
+        private static string JoinTriggers(string[] source)
+        {
+            if (source == null || source.Length == 0)
+                return string.Empty;
+
+            global::System.Collections.Generic.List<string> cleaned = new(source.Length);
+            for (int i = 0; i < source.Length; i++)
+            {
+                string token = source[i];
+                if (string.IsNullOrWhiteSpace(token))
+                    continue;
+                cleaned.Add(token.Trim());
+            }
+
+            if (cleaned.Count == 0)
+                return string.Empty;
+
+            return string.Join(",", cleaned);
+        }
+
+        private static void PublishScriptedTriggers(string triggerTokens, int levelIndex)
+        {
+            if (string.IsNullOrWhiteSpace(triggerTokens))
+                return;
+
+            string[] tokens = triggerTokens.Split(
+                new[] { ',', ';', '|' },
+                global::System.StringSplitOptions.RemoveEmptyEntries);
+            if (tokens == null || tokens.Length == 0)
+                return;
+
+            int safeLevelIndex = Mathf.Max(0, levelIndex);
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                string token = tokens[i];
+                if (string.IsNullOrWhiteSpace(token))
+                    continue;
+
+                EventBus.Publish(new NarrativeTriggeredEvent
+                {
+                    eventType = ENarrativeEventType.ScriptedTrigger,
+                    eventId = token.Trim(),
+                    levelIndex = safeLevelIndex
+                });
             }
         }
     }

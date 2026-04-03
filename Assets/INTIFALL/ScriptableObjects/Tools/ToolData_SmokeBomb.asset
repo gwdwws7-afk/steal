@@ -20,7 +20,7 @@ MonoBehaviour:
   damage: 0
   range: 8
   cooldown: 14
-  duration: 7
+  duration: 8
   maxAmmo: 3
   energyCost: 12
   upgradePrice: 120

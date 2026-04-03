@@ -186,6 +186,25 @@ namespace INTIFALL.Tests
             }
         }
 
+        [Test]
+        public void CoreStealthToolkit_TuningBaseline_IsWithinIteration31Envelope()
+        {
+            string ropeContent = File.ReadAllText(Path.Combine(Application.dataPath, "INTIFALL/ScriptableObjects/Tools/ToolData_Rope.asset"));
+            string smokeContent = File.ReadAllText(Path.Combine(Application.dataPath, "INTIFALL/ScriptableObjects/Tools/ToolData_SmokeBomb.asset"));
+            string baitContent = File.ReadAllText(Path.Combine(Application.dataPath, "INTIFALL/ScriptableObjects/Tools/ToolData_SoundBait.asset"));
+            string timedNoiseContent = File.ReadAllText(Path.Combine(Application.dataPath, "INTIFALL/ScriptableObjects/Tools/ToolData_TimedNoise.asset"));
+
+            Assert.That(ReadFloat(ropeContent, "cooldown"), Is.GreaterThanOrEqualTo(5f).And.LessThanOrEqualTo(6f), "Rope cooldown baseline drifted.");
+            Assert.That(ReadInt(ropeContent, "maxAmmo"), Is.EqualTo(2), "Rope ammo baseline drifted.");
+
+            Assert.That(ReadFloat(smokeContent, "duration"), Is.GreaterThanOrEqualTo(8f), "Smoke duration baseline drifted.");
+            Assert.That(ReadFloat(baitContent, "cooldown"), Is.GreaterThanOrEqualTo(8f), "SoundBait cooldown baseline drifted.");
+            Assert.That(ReadInt(baitContent, "maxAmmo"), Is.EqualTo(3), "SoundBait ammo baseline drifted.");
+
+            Assert.That(ReadFloat(timedNoiseContent, "cooldown"), Is.LessThanOrEqualTo(15f), "TimedNoise cooldown should support decoy alternative route.");
+            Assert.That(ReadInt(timedNoiseContent, "maxAmmo"), Is.GreaterThanOrEqualTo(4), "TimedNoise ammo should support extended decoy chains.");
+        }
+
         private static string ReadString(string content, string field)
         {
             MatchCollection matches = FieldPattern.Matches(content);

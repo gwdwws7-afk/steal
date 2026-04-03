@@ -341,14 +341,62 @@ namespace INTIFALL.Level
             if (!intel.activeSelf)
                 intel.SetActive(true);
 
-            IntelPickup pickup = intel.GetComponent<IntelPickup>();
-            if (pickup == null)
-                pickup = intel.AddComponent<IntelPickup>();
-
             int levelIndex = levelData != null ? levelData.levelIndex : 0;
-            pickup.Configure(intelPoint.intelId, levelIndex, intelPoint.intelType, intelPoint.displayName);
+            bool isTerminalDocument = intelPoint.intelType == EIntelType.TerminalDocument;
+            if (isTerminalDocument)
+            {
+                IntelPickup pickup = intel.GetComponent<IntelPickup>();
+                if (pickup != null)
+                {
+                    pickup.enabled = false;
+                    Destroy(pickup);
+                }
+
+                TerminalInteractable terminal = intel.GetComponent<TerminalInteractable>();
+                if (terminal == null)
+                    terminal = intel.AddComponent<TerminalInteractable>();
+
+                terminal.Configure(
+                    intelPoint.intelId,
+                    levelIndex,
+                    intelPoint.displayName,
+                    intelPoint.description,
+                    intelPoint.triggerEvents);
+                ConfigureTerminalInteractable(terminal);
+            }
+            else
+            {
+                IntelPickup pickup = intel.GetComponent<IntelPickup>();
+                if (pickup == null)
+                    pickup = intel.AddComponent<IntelPickup>();
+
+                pickup.Configure(
+                    intelPoint.intelId,
+                    levelIndex,
+                    intelPoint.intelType,
+                    intelPoint.displayName,
+                    intelPoint.description,
+                    intelPoint.triggerEvents);
+            }
 
             _intelSpawned++;
+        }
+
+        private void ConfigureTerminalInteractable(TerminalInteractable terminal)
+        {
+            if (terminal == null)
+                return;
+
+            if (levelData == null)
+                return;
+
+            terminal.ApplyLevelTuning(
+                levelData.terminalHackDurationSeconds,
+                levelData.terminalAlertSuppressDurationSeconds,
+                levelData.terminalAlertSuppressRadiusMeters,
+                levelData.terminalSuppressActiveAlerts,
+                levelData.terminalUnlockLinkedDoors,
+                levelData.terminalClearLinkedLightingAlertMode);
         }
 
         private GameObject GetIntelPrefab(EIntelType type)

@@ -1,0 +1,129 @@
+{
+  "entries": [
+    {
+      "levelIndex": 0,
+      "terminalId": "Level01_Qhapaq_Passage_terminal_a",
+      "title": "Freight Entrance Manifest",
+      "summary": "Shift logs confirm imperial supply wagons now move under reinforced escort through the lower passage."
+    },
+    {
+      "levelIndex": 0,
+      "terminalId": "Level01_Qhapaq_Passage_terminal_b",
+      "title": "Checkpoint Sensor Report",
+      "summary": "The route scanner rotates every forty seconds, leaving a brief blind corridor near the east scaffolds."
+    },
+    {
+      "levelIndex": 0,
+      "terminalId": "Level01_Qhapaq_Passage_terminal_c",
+      "title": "Refinery Alarm Relay",
+      "summary": "Alert relays can be rerouted from this node to delay patrol convergence in the refinery spine.",
+      "advancedTrigger": "warning"
+    },
+    {
+      "levelIndex": 1,
+      "terminalId": "Level02_Temple_Complex_terminal_a",
+      "title": "Reception Archive Index",
+      "summary": "Valleys family files are split across upper archive partitions guarded by priest verification seals."
+    },
+    {
+      "levelIndex": 1,
+      "terminalId": "Level02_Temple_Complex_terminal_b",
+      "title": "Supervisor Office Ledger",
+      "summary": "A confiscated sigil register links your bloodline to the tower archive relocation order."
+    },
+    {
+      "levelIndex": 1,
+      "terminalId": "Level02_Temple_Complex_terminal_c",
+      "title": "Luminous Grid Control",
+      "summary": "This panel toggles L3-L4 illumination banks and can create a stealth corridor through the meeting wing."
+    },
+    {
+      "levelIndex": 1,
+      "terminalId": "Level02_Temple_Complex_terminal_d",
+      "title": "Core Exile Record",
+      "summary": "The archive confirms the exile decree was fabricated by council operatives to erase succession claims.",
+      "advancedTrigger": "story_reveal"
+    },
+    {
+      "levelIndex": 2,
+      "terminalId": "Level03_Underground_Labs_terminal_a",
+      "title": "Perimeter Security Feed",
+      "summary": "Outer cameras are synchronized with drone sweeps, but their handoff windows drift during coolant cycling."
+    },
+    {
+      "levelIndex": 2,
+      "terminalId": "Level03_Underground_Labs_terminal_b",
+      "title": "Gene Lab Trial Notes",
+      "summary": "Trial entries map Saqueos response thresholds and identify the sectors with unstable containment."
+    },
+    {
+      "levelIndex": 2,
+      "terminalId": "Level03_Underground_Labs_terminal_c",
+      "title": "Research Lift Override",
+      "summary": "The lift firmware can be forced into maintenance mode to isolate patrol routes between lab tiers."
+    },
+    {
+      "levelIndex": 2,
+      "terminalId": "Level03_Underground_Labs_terminal_d",
+      "title": "Experiment Core Log",
+      "summary": "Signed directives tie command leadership to live-field Saqueos deployment and civilian suppression.",
+      "advancedTrigger": "warning,story_reveal"
+    },
+    {
+      "levelIndex": 3,
+      "terminalId": "Level04_Qhipu_Core_terminal_a",
+      "title": "Temple Outer Roster",
+      "summary": "Guard rosters reveal rotating gaps on the north shrine ring shortly after shift bell transitions."
+    },
+    {
+      "levelIndex": 3,
+      "terminalId": "Level04_Qhipu_Core_terminal_b",
+      "title": "Transit Channel Dispatch",
+      "summary": "Courier traffic is redirected through hidden conduit lines when core alerts exceed threshold two."
+    },
+    {
+      "levelIndex": 3,
+      "terminalId": "Level04_Qhipu_Core_terminal_c",
+      "title": "Priest Cipher Annex",
+      "summary": "Partial decryption of priest traffic exposes fallback rituals tied to the final solar sanctum."
+    },
+    {
+      "levelIndex": 3,
+      "terminalId": "Level04_Qhipu_Core_terminal_d",
+      "title": "Core Thread Registry",
+      "summary": "The core registry confirms branching outcomes are pre-scripted unless the terminal key is overwritten.",
+      "advancedTrigger": "story_reveal"
+    },
+    {
+      "levelIndex": 4,
+      "terminalId": "Level05_General_Taki_Villa_terminal_a",
+      "title": "Outer Checkpoint Dossier",
+      "summary": "Checkpoint audits list purge teams staged behind ceremonial gates for rapid final-sector lockdown."
+    },
+    {
+      "levelIndex": 4,
+      "terminalId": "Level05_General_Taki_Villa_terminal_b",
+      "title": "Mid Tier Light Matrix",
+      "summary": "Lighting subgrids can be inverted to break long-angle sightlines across the central balcony routes."
+    },
+    {
+      "levelIndex": 4,
+      "terminalId": "Level05_General_Taki_Villa_terminal_c",
+      "title": "Priest Communications Trace",
+      "summary": "Intercepted priest channels confirm internal dissent and reveal blind trust boundaries around Taki."
+    },
+    {
+      "levelIndex": 4,
+      "terminalId": "Level05_General_Taki_Villa_terminal_d",
+      "title": "Solar Array Directive",
+      "summary": "Array calibration commands can force staggered blackouts, creating short windows for final advance."
+    },
+    {
+      "levelIndex": 4,
+      "terminalId": "Level05_General_Taki_Villa_terminal_e",
+      "title": "Final Decision Kernel",
+      "summary": "The kernel records the imperial contingency order and accepts an irreversible branch selection input.",
+      "advancedTrigger": "story_reveal"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 using NUnit.Framework;
 using INTIFALL.Environment;
+using INTIFALL.Input;
 using INTIFALL.Player;
+using INTIFALL.System;
 using UnityEngine;
 using System.Reflection;
 
@@ -53,6 +55,33 @@ namespace INTIFALL.Tests
             Assert.IsTrue(door.IsOpen);
 
             Object.DestroyImmediate(doorGo);
+        }
+
+        [Test]
+        public void ElectronicDoor_InteractEvent_WhenPlayerInRange_OpensUnlockedDoor()
+        {
+            EventBus.ClearAllSubscribers();
+
+            var doorGo = new GameObject("ElectronicDoor");
+            doorGo.AddComponent<BoxCollider>();
+            var door = doorGo.AddComponent<ElectronicDoor>();
+            InvokePrivate(door, "OnEnable");
+
+            try
+            {
+                door.Unlock();
+                SetPrivateField(door, "_playerInRange", true);
+
+                EventBus.Publish(new InputManager.InteractEvent());
+
+                Assert.IsTrue(door.IsOpen, "Door should open on interact event when player is in range and unlocked.");
+            }
+            finally
+            {
+                InvokePrivate(door, "OnDisable");
+                Object.DestroyImmediate(doorGo);
+                EventBus.ClearAllSubscribers();
+            }
         }
 
         [Test]

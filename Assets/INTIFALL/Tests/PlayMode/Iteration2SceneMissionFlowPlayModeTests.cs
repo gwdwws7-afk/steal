@@ -1,4 +1,5 @@
 using System.Collections;
+using INTIFALL.Environment;
 using System.Reflection;
 using INTIFALL.Economy;
 using INTIFALL.Level;
@@ -44,6 +45,8 @@ namespace INTIFALL.PlayModeTests
 
                 var intelPickups = Object.FindObjectsByType<IntelPickup>(FindObjectsSortMode.None);
                 Assert.Greater(intelPickups.Length, 0, $"IntelPickup missing in {sceneName}");
+                var terminalInteractables = Object.FindObjectsByType<TerminalInteractable>(FindObjectsSortMode.None);
+                Assert.Greater(terminalInteractables.Length, 0, $"TerminalInteractable missing in {sceneName}");
 
                 var exit = Object.FindFirstObjectByType<MissionExitPoint>();
                 Assert.IsNotNull(exit, $"MissionExitPoint missing in {sceneName}");
@@ -91,10 +94,16 @@ namespace INTIFALL.PlayModeTests
                             intelPickups[intelIndex].Collect();
                     }
 
+                    for (int terminalIndex = 0; terminalIndex < terminalInteractables.Length; terminalIndex++)
+                    {
+                        if (terminalInteractables[terminalIndex] != null)
+                            terminalInteractables[terminalIndex].CompleteHackImmediate();
+                    }
+
                     yield return null;
                     Assert.GreaterOrEqual(
                         intelCollectedEvents,
-                        intelPickups.Length,
+                        intelPickups.Length + terminalInteractables.Length,
                         $"Not all intel events fired in {sceneName}");
 
                     InvokeExitTrigger(exit, playerCollider);

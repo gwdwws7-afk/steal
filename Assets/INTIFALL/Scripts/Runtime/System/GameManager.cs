@@ -406,6 +406,9 @@ namespace INTIFALL.System
             bool hasRope = _ropeToolUses > 0;
             bool hasSmoke = _smokeToolUses > 0;
             bool hasSoundBait = _soundBaitToolUses > 0;
+            int uniqueCoreTools = (hasRope ? 1 : 0) + (hasSmoke ? 1 : 0) + (hasSoundBait ? 1 : 0);
+            int dominantCoreUsage = Mathf.Max(_ropeToolUses, Mathf.Max(_smokeToolUses, _soundBaitToolUses));
+            float dominantCoreRatio = _toolsUsed > 0 ? dominantCoreUsage / (float)_toolsUsed : 1f;
             int adjustment = 0;
 
             switch (normalizedRisk)
@@ -447,6 +450,18 @@ namespace INTIFALL.System
 
             int overuse = Mathf.Max(0, _toolsUsed - 6);
             adjustment -= overuse * 6;
+
+            if (uniqueCoreTools >= 2 && _toolsUsed >= 2)
+                adjustment += 8;
+            if (uniqueCoreTools == 3 && normalizedRisk >= 2)
+                adjustment += 12;
+
+            if (dominantCoreRatio >= 0.8f && _toolsUsed >= 4)
+                adjustment -= 20;
+
+            if (hasRope && !hasSmoke && normalizedRisk >= 2 && _toolsUsed >= 3)
+                adjustment -= 8;
+
             return adjustment;
         }
 

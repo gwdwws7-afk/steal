@@ -1,5 +1,6 @@
 using UnityEngine;
 using INTIFALL.System;
+using INTIFALL.Environment;
 
 namespace INTIFALL.AI
 {
@@ -61,6 +62,16 @@ namespace INTIFALL.AI
             NormalizeDurations();
             CurrentState = EEnemyState.Unaware;
             StateEnterTime = Time.time;
+        }
+
+        private void OnEnable()
+        {
+            EventBus.Subscribe<TerminalAlertSuppressedEvent>(OnTerminalAlertSuppressed);
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Unsubscribe<TerminalAlertSuppressedEvent>(OnTerminalAlertSuppressed);
         }
 
         private void OnValidate()
@@ -275,6 +286,34 @@ namespace INTIFALL.AI
         {
             return CurrentState == EEnemyState.Alert ||
                    CurrentState == EEnemyState.FullAlert;
+        }
+
+        private void OnTerminalAlertSuppressed(TerminalAlertSuppressedEvent evt)
+        {
+            if (CurrentState == EEnemyState.Unaware)
+                return;
+
+            float sqrRange = Mathf.Max(1f, evt.effectRadiusMeters);
+            sqrRange *= sqrRange;
+            if ((transform.position - evt.sourcePosition).sqrMagnitude > sqrRange)
+                return;
+
+            _hasDetectionInState = false;
+            _lastKnownPlayerPos = evt.sourcePosition;
+            _suspiciousLookTarget = evt.sourcePosition;
+            _searchAnchor = evt.sourcePosition;
+            _searchWaveId = Mathf.Max(_searchWaveId, Mathf.Max(1, evt.waveId));
+
+            if (CurrentState == EEnemyState.Suspicious || CurrentState == EEnemyState.Searching)
+            {
+                TransitionTo(EEnemyState.Searching);
+                return;
+            }
+
+            if (CurrentState == EEnemyState.Alert || CurrentState == EEnemyState.FullAlert)
+            {
+                TransitionTo(EEnemyState.Searching);
+            }
         }
 
         private static EAlertState ConvertAlertState(EEnemyState state)

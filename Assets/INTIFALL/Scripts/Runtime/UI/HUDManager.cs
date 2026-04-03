@@ -1,4 +1,5 @@
 ﻿using INTIFALL.Input;
+using INTIFALL.Environment;
 using INTIFALL.Level;
 using INTIFALL.Narrative;
 using INTIFALL.Player;
@@ -16,6 +17,9 @@ namespace INTIFALL.UI
         private const string MissionEvaluatingSecondary = "Secondary: Evaluation in progress...";
         private const string MissionCompletePrimary = "Primary complete: Successful extraction";
         private const string ReachExtractionPrimary = "Primary: Reach extraction point";
+        private const string TerminalHackSecondaryTemplate = "Terminal hack: {0:P0}";
+        private const string TerminalHackCompleteTemplate = "Terminal unlocked: {0}";
+        private const string TerminalHackCancelledTemplate = "Terminal hack cancelled";
 
         [Header("HUD Components")]
         [SerializeField] private GameObject hudPanel;
@@ -32,12 +36,16 @@ namespace INTIFALL.UI
         [SerializeField] private string secondaryObjectiveProgressTemplate = DefaultSecondaryObjectiveProgressTemplate;
         [SerializeField] private string secondaryObjectiveCompleteTemplate = DefaultSecondaryObjectiveCompleteTemplate;
         [SerializeField] private string secondaryObjectiveEvaluating = MissionEvaluatingSecondary;
+        [SerializeField] private string terminalHackProgressTemplate = TerminalHackSecondaryTemplate;
+        [SerializeField] private string terminalHackCompleteTemplate = TerminalHackCompleteTemplate;
+        [SerializeField] private string terminalHackCancelledText = TerminalHackCancelledTemplate;
 
         private PlayerHealthSystem _playerHealth;
         private PlayerCombatStateMachine _combatState;
         private bool _isVisible;
         private bool _initialized;
         private int _currentObjectiveLevelIndex;
+        private bool _terminalHackActive;
 
         public bool IsVisible
         {
@@ -161,6 +169,10 @@ namespace INTIFALL.UI
             EventBus.Subscribe<SecondaryObjectiveProgressEvent>(OnSecondaryObjectiveProgress);
             EventBus.Subscribe<MissionExitTriggeredEvent>(OnMissionExitTriggered);
             EventBus.Subscribe<MissionOutcomeEvaluatedEvent>(OnMissionOutcomeEvaluated);
+            EventBus.Subscribe<TerminalHackStartedEvent>(OnTerminalHackStarted);
+            EventBus.Subscribe<TerminalHackProgressEvent>(OnTerminalHackProgress);
+            EventBus.Subscribe<TerminalHackCancelledEvent>(OnTerminalHackCancelled);
+            EventBus.Subscribe<TerminalHackCompletedEvent>(OnTerminalHackCompleted);
         }
 
         private void OnDisable()
@@ -171,6 +183,10 @@ namespace INTIFALL.UI
             EventBus.Unsubscribe<SecondaryObjectiveProgressEvent>(OnSecondaryObjectiveProgress);
             EventBus.Unsubscribe<MissionExitTriggeredEvent>(OnMissionExitTriggered);
             EventBus.Unsubscribe<MissionOutcomeEvaluatedEvent>(OnMissionOutcomeEvaluated);
+            EventBus.Unsubscribe<TerminalHackStartedEvent>(OnTerminalHackStarted);
+            EventBus.Unsubscribe<TerminalHackProgressEvent>(OnTerminalHackProgress);
+            EventBus.Unsubscribe<TerminalHackCancelledEvent>(OnTerminalHackCancelled);
+            EventBus.Unsubscribe<TerminalHackCompletedEvent>(OnTerminalHackCompleted);
         }
 
         private void OnHPChanged(HPChangedEvent evt)
@@ -182,6 +198,7 @@ namespace INTIFALL.UI
         private void OnLevelLoaded(LevelLoadedEvent evt)
         {
             _currentObjectiveLevelIndex = evt.levelIndex;
+            _terminalHackActive = false;
             RefreshObjectiveState();
         }
 
@@ -220,6 +237,47 @@ namespace INTIFALL.UI
                 evaluated,
                 total,
                 DefaultSecondaryObjectiveCompleteTemplate));
+        }
+
+        private void OnTerminalHackStarted(TerminalHackStartedEvent evt)
+        {
+            if (evt.levelIndex != _currentObjectiveLevelIndex || eagleEyeUI == null)
+                return;
+
+            _terminalHackActive = true;
+            eagleEyeUI.SetSecondaryObjective(FormatTerminalHackProgress(0f));
+        }
+
+        private void OnTerminalHackProgress(TerminalHackProgressEvent evt)
+        {
+            if (!_terminalHackActive || evt.levelIndex != _currentObjectiveLevelIndex || eagleEyeUI == null)
+                return;
+
+            eagleEyeUI.SetSecondaryObjective(FormatTerminalHackProgress(evt.progress));
+        }
+
+        private void OnTerminalHackCancelled(TerminalHackCancelledEvent evt)
+        {
+            if (evt.levelIndex != _currentObjectiveLevelIndex || eagleEyeUI == null)
+                return;
+
+            _terminalHackActive = false;
+            eagleEyeUI.SetSecondaryObjective(terminalHackCancelledText);
+        }
+
+        private void OnTerminalHackCompleted(TerminalHackCompletedEvent evt)
+        {
+            if (evt.levelIndex != _currentObjectiveLevelIndex || eagleEyeUI == null)
+                return;
+
+            _terminalHackActive = false;
+            string terminalName = string.IsNullOrWhiteSpace(evt.terminalDisplayName)
+                ? "Terminal"
+                : evt.terminalDisplayName;
+            string template = string.IsNullOrWhiteSpace(terminalHackCompleteTemplate)
+                ? TerminalHackCompleteTemplate
+                : terminalHackCompleteTemplate;
+            eagleEyeUI.SetSecondaryObjective(string.Format(template, terminalName));
         }
 
         private void OnSecondaryObjectiveProgress(SecondaryObjectiveProgressEvent evt)
@@ -286,6 +344,22 @@ namespace INTIFALL.UI
             }
         }
 
+        private string FormatTerminalHackProgress(float progress)
+        {
+            string template = string.IsNullOrWhiteSpace(terminalHackProgressTemplate)
+                ? TerminalHackSecondaryTemplate
+                : terminalHackProgressTemplate;
+
+            try
+            {
+                return string.Format(template, Mathf.Clamp01(progress));
+            }
+            catch (global::System.FormatException)
+            {
+                return string.Format(TerminalHackSecondaryTemplate, Mathf.Clamp01(progress));
+            }
+        }
+
         private void ApplyLocalizedTemplates()
         {
             primaryObjectiveTemplate = LocalizationService.Get(
@@ -307,6 +381,18 @@ namespace INTIFALL.UI
             secondaryObjectiveEvaluating = LocalizationService.Get(
                 "hud.secondary.evaluating",
                 fallbackEnglish: MissionEvaluatingSecondary,
+                fallbackChinese: string.Empty);
+            terminalHackProgressTemplate = LocalizationService.Get(
+                "hud.terminal.hack_progress",
+                fallbackEnglish: TerminalHackSecondaryTemplate,
+                fallbackChinese: string.Empty);
+            terminalHackCompleteTemplate = LocalizationService.Get(
+                "hud.terminal.hack_complete",
+                fallbackEnglish: TerminalHackCompleteTemplate,
+                fallbackChinese: string.Empty);
+            terminalHackCancelledText = LocalizationService.Get(
+                "hud.terminal.hack_cancelled",
+                fallbackEnglish: TerminalHackCancelledTemplate,
                 fallbackChinese: string.Empty);
         }
 

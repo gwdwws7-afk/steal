@@ -19,6 +19,9 @@
     { "key": "hud.primary.complete", "en": "Primary complete: Successful extraction", "zhHans": "主目标完成：成功撤离", "zhHant": "主目標完成：成功撤離" },
     { "key": "hud.secondary.complete", "en": "Secondary complete: Extraction complete", "zhHans": "次目标完成：撤离完成", "zhHant": "次目標完成：撤離完成" },
     { "key": "hud.primary.reach_extract", "en": "Primary: Reach extraction point", "zhHans": "主目标：前往撤离点", "zhHant": "主目標：前往撤離點" },
+    { "key": "hud.terminal.hack_progress", "en": "Terminal hack: {0:P0}", "zhHans": "终端破解：{0:P0}", "zhHant": "終端破解：{0:P0}" },
+    { "key": "hud.terminal.hack_complete", "en": "Terminal unlocked: {0}", "zhHans": "终端已解锁：{0}", "zhHant": "終端已解鎖：{0}" },
+    { "key": "hud.terminal.hack_cancelled", "en": "Terminal hack cancelled", "zhHans": "终端破解已取消", "zhHant": "終端破解已取消" },
 
     { "key": "debrief.title", "en": "Mission Debrief - Level {0}", "zhHans": "任务总结 - 关卡 {0}", "zhHant": "任務總結 - 關卡 {0}" },
     { "key": "debrief.combat.zero_kill", "en": "Zero-Kill", "zhHans": "零击杀", "zhHant": "零擊殺" },

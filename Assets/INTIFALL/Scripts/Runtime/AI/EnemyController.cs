@@ -531,6 +531,7 @@ namespace INTIFALL.AI
 
             int waveId = EnemySquadCoordinator.NextWaveId();
             _stateMachine.OnSquadAlert(soundPosition, waveId, false);
+            BroadcastSquadAlert(soundPosition, false, waveId, true);
         }
 
         public void ReceiveSquadAlert(Vector3 alertPosition, int waveId, bool highPriority)

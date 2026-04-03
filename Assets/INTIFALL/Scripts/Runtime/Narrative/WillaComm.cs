@@ -460,6 +460,46 @@ namespace INTIFALL.Narrative
                         TryTriggerStoryReveal(levelIndex);
                     }
                     break;
+                case ENarrativeEventType.ScriptedTrigger:
+                    TryTriggerFromScriptToken(levelIndex, evt.eventId);
+                    break;
+            }
+        }
+
+        private void TryTriggerFromScriptToken(int levelIndex, string tokenList)
+        {
+            if (string.IsNullOrWhiteSpace(tokenList))
+                return;
+
+            string[] tokens = tokenList.Split(
+                new[] { ',', ';', '|' },
+                global::System.StringSplitOptions.RemoveEmptyEntries);
+            if (tokens == null || tokens.Length == 0)
+                return;
+
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                string rawToken = tokens[i];
+                if (string.IsNullOrWhiteSpace(rawToken))
+                    continue;
+
+                string token = rawToken.Trim().ToLowerInvariant();
+                if (token.Contains("betray"))
+                {
+                    TryTriggerBetrayal(levelIndex);
+                    continue;
+                }
+
+                if (token.Contains("warning") || token.Contains("alert") || token.Contains("threat"))
+                {
+                    TryTriggerWarning(levelIndex);
+                    continue;
+                }
+
+                if (token.Contains("story") || token.Contains("reveal") || token.Contains("truth"))
+                {
+                    TryTriggerStoryReveal(levelIndex);
+                }
             }
         }
 

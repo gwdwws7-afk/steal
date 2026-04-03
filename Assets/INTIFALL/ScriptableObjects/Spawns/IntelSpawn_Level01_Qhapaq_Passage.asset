@@ -29,6 +29,13 @@ MonoBehaviour:
     description: Storage routing table
     isHidden: 0
     triggerEvents: []
+  - intelId: Level01_Qhapaq_Passage_terminal_c
+    position: {x: -4, y: 0.6, z: 17}
+    intelType: 1
+    displayName: Terminal C
+    description: Conveyor route control console
+    isHidden: 0
+    triggerEvents: []
   - intelId: Level01_Qhapaq_Passage_qhipu_01
     position: {x: 0, y: 0.6, z: 30}
     intelType: 0
@@ -68,6 +75,11 @@ MonoBehaviour:
     cooldownDuration: 18
   - supplyId: Level01_Qhapaq_Passage_ammo_b
     position: {x: 30, y: 0.6, z: -2}
+    providesFirstAid: 0
+    providesTools: 1
+    cooldownDuration: 18
+  - supplyId: Level01_Qhapaq_Passage_ammo_c
+    position: {x: 20, y: 0.6, z: 14}
     providesFirstAid: 0
     providesTools: 1
     cooldownDuration: 18

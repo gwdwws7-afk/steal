@@ -61,6 +61,14 @@ namespace INTIFALL.Data
         public bool hasElectronicDoors = false;
         public bool hasSurveillanceCameras = false;
 
+        [Header("Terminal Interaction")]
+        public float terminalHackDurationSeconds = 3f;
+        public float terminalAlertSuppressDurationSeconds = 8f;
+        public float terminalAlertSuppressRadiusMeters = 18f;
+        public bool terminalSuppressActiveAlerts = true;
+        public bool terminalUnlockLinkedDoors = true;
+        public bool terminalClearLinkedLightingAlertMode = true;
+
         [Header("Rewards")]
         public int baseCreditReward = 200;
         public int secondaryObjectiveBonus = 50;
